@@ -40,9 +40,9 @@ dev = [
 gdb-cli = "gdb_cli.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/gdb-debug-cli"
-Repository = "https://github.com/yourusername/gdb-debug-cli"
-Issues = "https://github.com/yourusername/gdb-debug-cli/issues"
+Homepage = "https://github.com/yourusername/gdb-cli"
+Repository = "https://github.com/yourusername/gdb-cli"
+Issues = "https://github.com/yourusername/gdb-cli/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]

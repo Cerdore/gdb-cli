@@ -30,8 +30,8 @@ gdb -nx -q -batch -ex "python print('OK')"
 
 ```bash
 # clone 后本地安装
-git clone https://github.com/yourusername/gdb-debug-cli.git
-cd gdb-debug-cli
+git clone https://github.com/yourusername/gdb-cli.git
+cd gdb-cli
 pip install -e .
 
 # 环境自检
