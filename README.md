@@ -19,7 +19,7 @@ A GDB debugging tool designed for AI Agents (Claude Code, etc.). Uses a "thin cl
 
 ## Requirements
 
-- **Python**: 3.8+
+- **Python**: 3.6.8+
 - **GDB**: 9.0+ with **Python support enabled**
 - **OS**: Linux
 
@@ -36,7 +36,10 @@ gdb -nx -q -batch -ex "python print('OK')"
 ## Installation
 
 ```bash
-# Install directly from GitHub
+# Install from PyPI
+pip install gdb-cli
+
+# Or install from GitHub
 pip install git+https://github.com/Cerdore/gdb-cli.git
 
 # Or clone and install locally

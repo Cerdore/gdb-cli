@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "GDB CLI for AI - A thin client CLI with GDB built-in Python RPC Server"
 readme = "README.md"
 license = {text = "Apache-2.0"}
-requires-python = ">=3.8"
+requires-python = ">=3.6.8"
 authors = [
     {name = "Cerdore", email = "cerdore@users.noreply.github.com"}
 ]
@@ -20,6 +20,8 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -31,6 +33,7 @@ classifiers = [
 
 dependencies = [
     "click>=7.0",
+    "dataclasses>=0.6;python_version<'3.7'",
 ]
 
 [project.optional-dependencies]
@@ -75,7 +78,7 @@ exclude_lines = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py38"
+target-version = "py36"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B"]
