@@ -1,0 +1,29 @@
+{
+  "skill_name": "gdb-debug",
+  "evals": [
+    {
+      "id": 1,
+      "name": "basic-core-analysis",
+      "prompt": "I have a core dump at /tmp/core.1234 and the binary is ./myapp. Can you help me debug it?",
+      "expected_output": "Should initialize gdb-cli session, gather backtrace and thread info, and provide analysis guidance",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 2,
+      "name": "attach-live-process",
+      "prompt": "My server process (PID 12345) seems stuck. Can you help me attach GDB to it and see what's happening?",
+      "expected_output": "Should use gdb-cli attach command, check threads and backtraces for deadlock indicators",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 3,
+      "name": "multi-thread-deadlock",
+      "prompt": "My multi-threaded program crashed. There's a core file at ./core.dump and binary at ./server. I suspect a deadlock. Help me analyze it.",
+      "expected_output": "Should analyze all threads, look for lock patterns, and provide deadlock analysis",
+      "files": [],
+      "assertions": []
+    }
+  ]
+}

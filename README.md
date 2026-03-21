@@ -2,7 +2,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/gdb-cli.svg)](https://pypi.org/project/gdb-cli/)
 [![Python](https://img.shields.io/pypi/pyversions/gdb-cli.svg)](https://pypi.org/project/gdb-cli/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![CI](https://github.com/Cerdore/gdb-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/Cerdore/gdb-cli/actions/workflows/ci.yml)
 
 [English](README.md) | [中文](README.zh-CN.md)
@@ -305,6 +305,11 @@ src/gdb_cli/
     ├── handlers.py         # Command handlers
     ├── value_formatter.py  # gdb.Value serialization
     └── heartbeat.py         # Heartbeat timeout management
+
+skills/
+└── gdb-debug/              # Claude Code skill for intelligent debugging
+    ├── SKILL.md            # Skill definition
+    └── evals/              # Test cases for skill evaluation
 ```
 
 ### Run Tests
@@ -360,6 +365,34 @@ ssh user@remote-host "pip install git+https://github.com/Cerdore/gdb-cli.git"
 ssh user@remote-host "gdb-cli load --binary ./my_program --core ./core.12345"
 ```
 
+## Claude Code Skills
+
+This project includes a **gdb-debug skill** for Claude Code that provides intelligent debugging assistance by combining source code analysis with runtime state inspection.
+
+### Install the Skill
+
+```bash
+cp -r skills/gdb-debug ~/.claude/commands/
+```
+
+### Usage in Claude Code
+
+```
+/gdb-debug
+
+# Or describe your debugging need:
+I have a core dump at ./core.1234 and binary at ./myapp. Help me debug it.
+```
+
+### Features
+
+- **Source Code Correlation**: Automatically reads source files around crash points
+- **Deadlock Detection**: Identifies circular wait patterns in multi-threaded programs
+- **Safety Warnings**: Alerts about production environment risks when attaching to live processes
+- **Structured Reports**: Generates analysis with root cause hypotheses and next steps
+
+See [skills/README.md](skills/README.md) for more details.
+
 ## License
 
-MIT License
+Apache License 2.0
