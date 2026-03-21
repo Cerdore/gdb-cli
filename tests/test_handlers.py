@@ -22,8 +22,8 @@ available inside the GDB Python interpreter.
 
 import os
 import sys
-from pathlib import Path
 import unittest
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 # Mock gdb module before any imports that depend on it
