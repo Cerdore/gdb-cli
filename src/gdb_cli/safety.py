@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Safety Module - 命令安全过滤
 
@@ -6,9 +5,9 @@ Safety Module - 命令安全过滤
 """
 
 
+from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, Set, Tuple
-from dataclasses import dataclass
 
 
 class SafetyLevel(Enum):

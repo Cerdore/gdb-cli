@@ -13,11 +13,7 @@ Based on Spec §2.6, §4.3 Phase 3:
     - Add hint for pagination
 """
 
-import json
 import unittest
-from typing import Any, Dict, List
-
-import pytest
 
 # Import will be available after developer implements formatters.py
 # from gdb_cli.formatters import (

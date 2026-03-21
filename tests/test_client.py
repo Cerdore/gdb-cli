@@ -13,14 +13,9 @@ Based on Spec §4.2:
         def close(self) -> None
 """
 
-import json
-import socket
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import Mock, patch
-
-import pytest
 
 # Import will be available after developer implements client.py
 # from gdb_cli.client import GDBClient, ConnectionError, TimeoutError

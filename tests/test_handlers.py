@@ -22,22 +22,13 @@ available inside the GDB Python interpreter.
 
 import sys
 import unittest
-from typing import Any, Dict, List, Optional
-from unittest.mock import Mock, patch, MagicMock
-
-import pytest
+from unittest.mock import Mock, patch
 
 # Mock gdb module before importing handlers
 sys.modules['gdb'] = Mock()
 
 from gdb_cli.gdb_server.handlers import (
     handle_eval,
-    handle_threads,
-    handle_backtrace,
-    handle_frame_select,
-    handle_locals,
-    handle_exec,
-    handle_status,
 )
 
 

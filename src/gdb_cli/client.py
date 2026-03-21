@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Unix Socket Client - 与 GDB RPC Server 通信
 
@@ -8,10 +7,8 @@ Unix Socket Client - 与 GDB RPC Server 通信
 
 import json
 import socket
-import time
 from pathlib import Path
-from typing import Any, Optional
-
+from typing import Optional
 
 # 默认配置
 DEFAULT_TIMEOUT = 30.0  # 默认命令超时
@@ -78,7 +75,7 @@ class GDBClient:
             self._sock.settimeout(CONNECT_TIMEOUT)
             self._sock.connect(str(self.sock_path))
             self._sock.settimeout(self.timeout)
-        except socket.error as e:
+        except OSError as e:
             self._sock = None
             raise GDBConnectionError(f"Cannot connect to {self.sock_path}: {e}")
 
@@ -161,7 +158,7 @@ class GDBClient:
 
         except socket.timeout:
             raise GDBCommandError(f"Command '{cmd}' timed out", cmd)
-        except socket.error as e:
+        except OSError as e:
             self.close()
             raise GDBConnectionError(f"Socket error: {e}")
         except json.JSONDecodeError as e:

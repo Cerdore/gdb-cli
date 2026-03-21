@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Session Management - 会话元数据管理
 
@@ -12,10 +11,9 @@ import json
 import os
 import time
 import uuid
-from dataclasses import dataclass, asdict, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Optional, List
-
+from typing import List, Optional
 
 # Session 目录
 SESSION_DIR = Path.home() / ".gdb-cli" / "sessions"
@@ -113,7 +111,7 @@ def _read_meta(session_id: str) -> Optional[SessionMeta]:
         return None
 
     try:
-        with open(meta_path, "r") as f:
+        with open(meta_path) as f:
             data = json.load(f)
         return SessionMeta.from_dict(data)
     except (json.JSONDecodeError, KeyError):

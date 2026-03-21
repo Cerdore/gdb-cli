@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 GDB RPC Server - 运行在 GDB Python 解释器内
 
@@ -10,10 +9,9 @@ import json
 import os
 import socket
 import threading
-import queue
 import time
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+from typing import Callable, Dict, Optional
 
 # GDB Python API - 仅在 GDB 环境中可用
 try:

@@ -16,9 +16,6 @@ Based on Spec §2.7, §4.3 Phase 2:
 """
 
 import unittest
-from typing import Optional
-
-import pytest
 
 # Import will be available after developer implements safety.py
 # from gdb_cli.safety import (

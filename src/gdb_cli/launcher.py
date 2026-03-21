@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 GDB Launcher - 启动 GDB 进程
 
@@ -10,14 +9,12 @@ GDB Launcher - 启动 GDB 进程
 
 import json
 import os
-import signal
 import subprocess
 import time
 from pathlib import Path
 from typing import List, Optional
 
-from .session import SessionMeta, create_session, SESSION_DIR
-
+from .session import SessionMeta, create_session
 
 # GDB Server 脚本路径
 GDB_SERVER_SCRIPT = Path(__file__).parent / "gdb_server" / "gdb_rpc_server.py"
@@ -320,7 +317,7 @@ def stop_gdb(session_id: str) -> bool:
     Returns:
         是否成功停止
     """
-    from .session import get_session, cleanup_session
+    from .session import cleanup_session, get_session
 
     session = get_session(session_id)
     if session is None:

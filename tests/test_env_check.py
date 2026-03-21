@@ -13,10 +13,7 @@ Based on Spec §2.8:
 """
 
 import unittest
-from pathlib import Path
-from unittest.mock import Mock, patch, mock_open
-
-import pytest
+from unittest.mock import mock_open, patch
 
 # Import will be available after developer implements env_check.py
 # from gdb_cli.env_check import (

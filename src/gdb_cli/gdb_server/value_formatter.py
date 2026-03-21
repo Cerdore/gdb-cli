@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Value Formatter - gdb.Value → JSON 递归序列化
 
@@ -6,7 +5,7 @@ Value Formatter - gdb.Value → JSON 递归序列化
 支持基本类型、指针、结构体、数组，并提供截断和 hint 功能。
 """
 
-from typing import Any, Optional
+from typing import Any
 
 # GDB Python API - 仅在 GDB 环境中可用
 try:

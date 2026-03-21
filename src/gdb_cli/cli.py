@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 GDB CLI - 命令行入口
 
@@ -13,7 +12,6 @@ Usage:
 
 
 import json
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -21,10 +19,13 @@ import click
 
 from . import __version__
 from .client import GDBClient, GDBClientError, GDBCommandError
-from .launcher import launch_core, launch_attach, stop_gdb, GDBLauncherError
+from .launcher import GDBLauncherError, launch_attach, launch_core
 from .session import (
-    list_sessions, get_session, find_session_by_pid, find_session_by_core,
-    cleanup_dead_sessions, SessionMeta
+    cleanup_dead_sessions,
+    find_session_by_core,
+    find_session_by_pid,
+    get_session,
+    list_sessions,
 )
 
 

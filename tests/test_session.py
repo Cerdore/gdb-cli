@@ -26,13 +26,8 @@ Based on Spec §4.2:
         find_session_by_pid(pid: int) -> Optional[SessionMeta]
 """
 
-import json
-import tempfile
 import unittest
-from pathlib import Path
-from unittest.mock import Mock, patch, mock_open
-
-import pytest
+from unittest.mock import mock_open, patch
 
 # Import will be available after developer implements session.py
 # from gdb_cli.session import (

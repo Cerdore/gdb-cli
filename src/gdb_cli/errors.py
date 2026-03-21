@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Error Classification - 错误分类和处理
 
@@ -8,7 +7,7 @@ Error Classification - 错误分类和处理
 
 
 from enum import Enum
-from typing import Optional, Any, Tuple
+from typing import Any, Optional, Tuple
 
 
 class ErrorType(Enum):

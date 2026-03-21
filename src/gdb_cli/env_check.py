@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Environment Check - 环境自检模块
 
@@ -10,15 +9,13 @@ Environment Check - 环境自检模块
 """
 
 
-import os
 import platform
 import re
 import shutil
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, List
-
+from typing import List, Optional
 
 # 版本要求
 MIN_GDB_VERSION = (9, 0)
@@ -98,8 +95,7 @@ def _check_gdb(report: EnvironmentReport) -> None:
     try:
         result = subprocess.run(
             [gdb_path, "--version"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            text=True,
+            capture_output=True, text=True,
             timeout=10
         )
         version_str = result.stdout
@@ -202,8 +198,7 @@ def check_debuginfo(binary_path: str) -> DebuginfoReport:
     try:
         result = subprocess.run(
             [readelf, "-S", binary_path],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            text=True,
+            capture_output=True, text=True,
             timeout=30
         )
 
@@ -248,8 +243,7 @@ def _check_debuginfo_objdump(binary_path: str, report: DebuginfoReport) -> Debug
     try:
         result = subprocess.run(
             [objdump, "-h", binary_path],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            text=True,
+            capture_output=True, text=True,
             timeout=30
         )
 
@@ -312,12 +306,6 @@ def suggest_solib_paths(binary_path: str, core_path: Optional[str] = None) -> Li
     binary = Path(binary_path)
 
     # 常见的库路径
-    common_paths = [
-        "/usr/lib64",
-        "/usr/lib",
-        "/lib64",
-        "/lib",
-    ]
 
     # 检查二进制目录
     if binary.parent.exists():

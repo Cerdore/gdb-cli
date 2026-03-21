@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Command Handlers - GDB 命令处理器
 
@@ -7,8 +6,8 @@ Command Handlers - GDB 命令处理器
 """
 
 import os
-from typing import Any, List, Optional, Tuple
 from pathlib import Path
+from typing import Any, List, Optional, Tuple
 
 # GDB Python API - 仅在 GDB 环境中可用
 try:
@@ -20,6 +19,7 @@ except ImportError:
 
 # 动态加载 value_formatter（避免相对导入问题）
 import importlib.util
+
 _server_dir = os.environ.get("GDB_CLI_SERVER_DIR", "/tmp")
 _value_formatter_path = Path(_server_dir) / "value_formatter.py"
 _spec = importlib.util.spec_from_file_location("value_formatter", _value_formatter_path)
@@ -137,7 +137,7 @@ def handle_threads(
             result["current_thread"] = current_info
 
         if truncated:
-            result["hint"] = f"use 'threads --range START-END' for specific threads"
+            result["hint"] = "use 'threads --range START-END' for specific threads"
 
         return result
 
@@ -286,7 +286,7 @@ def handle_backtrace(
 
         # 格式化帧
         frames_data = []
-        for i, frame in enumerate(display_frames):
+        for _i, frame in enumerate(display_frames):
             frame_info = _format_frame(frame, include_locals=full)
             frame_info["number"] = all_frames.index(frame)
             frames_data.append(frame_info)
@@ -310,7 +310,7 @@ def handle_backtrace(
             result["thread_id"] = thread_id
 
         if truncated:
-            result["hint"] = f"use 'bt --range START-END' for specific frames"
+            result["hint"] = "use 'bt --range START-END' for specific frames"
 
         return result
 
@@ -376,7 +376,7 @@ def _select_frame_by_number(number: int) -> Any:
     使用纯 Python API，线程安全。
     """
     frame = gdb.newest_frame()
-    for i in range(number):
+    for _i in range(number):
         older = frame.older()
         if older is None:
             raise gdb.error("No frame number %d." % number)
@@ -404,7 +404,7 @@ def handle_frame_select(number: int, direction: Optional[str] = None, **kwargs) 
             # 向调用者方向移动 number 帧
             current = gdb.selected_frame()
             frame = current
-            for i in range(number):
+            for _i in range(number):
                 older = frame.older()
                 if older is None:
                     break
@@ -414,7 +414,7 @@ def handle_frame_select(number: int, direction: Optional[str] = None, **kwargs) 
             # 向被调用者方向移动 number 帧
             current = gdb.selected_frame()
             frame = current
-            for i in range(number):
+            for _i in range(number):
                 newer = frame.newer()
                 if newer is None:
                     break
@@ -838,7 +838,7 @@ def handle_args(
                         except Exception as e:
                             args_data.append({"name": sym.name, "error": str(e)})
         except Exception as e:
-            args_data.append({"error": "Cannot read args: %s" % e})
+            args_data.append({"error": f"Cannot read args: {e}"})
 
         # 恢复
         try:
@@ -852,7 +852,7 @@ def handle_args(
         return {"args": args_data, "function": func_name, "frame": frame}
 
     except gdb.error as e:
-        return {"error": "GDB error: %s" % e}
+        return {"error": f"GDB error: {e}"}
     except Exception as e:
         return {"error": str(e)}
 
@@ -932,7 +932,7 @@ def handle_registers(
         return {"registers": regs_data, "frame": frame}
 
     except gdb.error as e:
-        return {"error": "GDB error: %s" % e}
+        return {"error": f"GDB error: {e}"}
     except Exception as e:
         return {"error": str(e)}
 
@@ -967,7 +967,7 @@ def handle_memory(
                 val = gdb.parse_and_eval(address)
                 addr = int(val)
         except Exception as e:
-            return {"error": "Cannot parse address '%s': %s" % (address, e)}
+            return {"error": f"Cannot parse address '{address}': {e}"}
 
         # 限制大小
         max_size = 4096
@@ -985,7 +985,7 @@ def handle_memory(
             else:
                 text = mem_bytes.decode("utf-8", errors="replace")
             return {
-                "address": "0x%x" % addr,
+                "address": f"0x{addr:x}",
                 "size": len(text),
                 "data": text,
                 "format": "string"
@@ -993,7 +993,7 @@ def handle_memory(
         elif fmt == "bytes":
             data = list(mem_bytes)
             return {
-                "address": "0x%x" % addr,
+                "address": f"0x{addr:x}",
                 "size": size,
                 "data": data,
                 "format": "bytes"
@@ -1003,7 +1003,7 @@ def handle_memory(
             lines = []
             for offset in range(0, size, 16):
                 chunk = mem_bytes[offset:offset + 16]
-                hex_part = " ".join("%02x" % b for b in chunk)
+                hex_part = " ".join(f"{b:02x}" for b in chunk)
                 ascii_part = "".join(chr(b) if 32 <= b < 127 else "." for b in chunk)
                 lines.append({
                     "offset": "0x%x" % (addr + offset),
@@ -1011,16 +1011,16 @@ def handle_memory(
                     "ascii": ascii_part
                 })
             return {
-                "address": "0x%x" % addr,
+                "address": f"0x{addr:x}",
                 "size": size,
                 "data": lines,
                 "format": "hex"
             }
 
     except gdb.MemoryError as e:
-        return {"error": "Cannot access memory at 0x%x: %s" % (addr, e)}
+        return {"error": f"Cannot access memory at 0x{addr:x}: {e}"}
     except gdb.error as e:
-        return {"error": "GDB error: %s" % e}
+        return {"error": f"GDB error: {e}"}
     except Exception as e:
         return {"error": str(e)}
 
@@ -1100,7 +1100,7 @@ def handle_ptype(
         return result
 
     except gdb.error as e:
-        return {"expression": expr, "error": "GDB error: %s" % e}
+        return {"expression": expr, "error": f"GDB error: {e}"}
     except Exception as e:
         return {"expression": expr, "error": str(e)}
 
@@ -1145,7 +1145,7 @@ def handle_thread_switch(
         return result
 
     except gdb.error as e:
-        return {"error": "GDB error: %s" % e}
+        return {"error": f"GDB error: {e}"}
     except Exception as e:
         return {"error": str(e)}
 
@@ -1180,7 +1180,7 @@ def handle_sharedlibs(**kwargs) -> dict:
         return {"libraries": libs, "count": len(libs)}
 
     except gdb.error as e:
-        return {"error": "GDB error: %s" % e}
+        return {"error": f"GDB error: {e}"}
     except Exception as e:
         return {"error": str(e)}
 
@@ -1237,10 +1237,10 @@ def handle_disasm(
                     start_pc = int(val)
             except Exception:
                 try:
-                    val = gdb.parse_and_eval("(void*)%s" % start)
+                    val = gdb.parse_and_eval(f"(void*){start}")
                     start_pc = int(val)
                 except Exception as e:
-                    return {"error": "Cannot resolve address '%s': %s" % (start, e)}
+                    return {"error": f"Cannot resolve address '{start}': {e}"}
         else:
             start_pc = selected.pc()
 
@@ -1256,7 +1256,7 @@ def handle_disasm(
         insn_data = []
         for insn in instructions:
             insn_data.append({
-                "address": "0x%x" % insn["addr"],
+                "address": "0x{:x}".format(insn["addr"]),
                 "asm": insn["asm"],
                 "length": insn.get("length", 0)
             })
@@ -1273,7 +1273,7 @@ def handle_disasm(
         result = {
             "instructions": insn_data,
             "function": func_name,
-            "start_address": "0x%x" % start_pc,
+            "start_address": f"0x{start_pc:x}",
             "count": len(insn_data)
         }
 
@@ -1284,6 +1284,6 @@ def handle_disasm(
         return result
 
     except gdb.error as e:
-        return {"error": "GDB error: %s" % e}
+        return {"error": f"GDB error: {e}"}
     except Exception as e:
         return {"error": str(e)}
