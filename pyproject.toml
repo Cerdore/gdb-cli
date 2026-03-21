@@ -78,7 +78,7 @@ exclude_lines = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py36"
+target-version = "py37"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B"]
