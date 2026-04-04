@@ -5,7 +5,7 @@
 设计一个能产生 coredump 的 C/C++ 测试程序，用于验证 gdb-cli 的核心功能：
 - `gdb-cli threads` — 多线程支持
 - `gdb-cli bt` — 调用栈追踪
-- `gdb-cli eval` — 表达式求值和数据结构遍历
+- `gdb-cli eval-cmd` — 表达式求值和数据结构遍历
 
 ## 2. 程序架构
 
@@ -370,16 +370,16 @@ gdb-cli bt
 
 ```bash
 # 验证全局变量
-gdb-cli eval "g_database"
+gdb-cli eval-cmd -s $SESSION "g_database"
 
 # 验证数组访问
-gdb-cli eval "g_database.tables[0]"
+gdb-cli eval-cmd -s $SESSION "g_database.tables[0]"
 
 # 验证指针解引用
-gdb-cli eval "g_database.tables[0].columns[1]"
+gdb-cli eval-cmd -s $SESSION "g_database.tables[0].columns[1]"
 
 # 验证嵌套结构
-gdb-cli eval "g_database.config"
+gdb-cli eval-cmd -s $SESSION "g_database.config"
 ```
 
 **预期输出**:

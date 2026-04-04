@@ -68,7 +68,22 @@ Output:
   "binary": "./my_program",
   "core": "./core.12345",
   "gdb_pid": 12345,
-  "status": "started"
+  "status": "loading"
+}
+```
+
+When loading a large binary or core file, poll until the session becomes ready:
+
+```bash
+gdb-cli status -s f465d650
+```
+
+```json
+{
+  "session_id": "f465d650",
+  "state": "ready",
+  "mode": "core",
+  "binary": "./my_program"
 }
 ```
 
@@ -148,6 +163,8 @@ gdb-cli load --binary <path> --core <path> [options]
   --timeout         Heartbeat timeout in seconds (default: 600)
   --gdb-path        GDB executable path (default: "gdb")
 ```
+
+`load` returns immediately with `"status": "loading"` after the RPC server becomes reachable. Use `gdb-cli status -s <session>` and wait for `"state": "ready"` before heavy inspection commands.
 
 ### attach — Attach to Process
 

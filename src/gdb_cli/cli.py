@@ -4,7 +4,7 @@ GDB CLI - 命令行入口
 Usage:
     gdb-cli load --binary ./my_program --core ./core.1234
     gdb-cli attach --pid 9876
-    gdb-cli eval --session <id> "lock_mgr->buckets[0]"
+    gdb-cli eval-cmd --session <id> "lock_mgr->buckets[0]"
     gdb-cli threads --session <id> [--limit 20]
     gdb-cli bt --session <id> [--thread 12] [--limit 30]
     gdb-cli stop --session <id>
@@ -12,6 +12,7 @@ Usage:
 
 
 import json
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -112,7 +113,7 @@ def load(
             "core": session.core,
             "sock_path": session.sock_path,
             "gdb_pid": gdb_process.pid,
-            "status": "started"
+            "status": "loading"
         })
 
     except GDBLauncherError as e:
@@ -349,6 +350,24 @@ def status(session: str) -> None:
             result["session_id"] = session
             print_json(result)
     except GDBClientError as e:
+        meta = get_session(session)
+        if meta is None:
+            print_error("Session not found", session)
+            raise click.exceptions.Exit(1)
+
+        if meta.gdb_pid:
+            try:
+                os.kill(meta.gdb_pid, 0)
+                print_json({
+                    "session_id": session,
+                    "state": "loading",
+                    "message": "GDB process alive, not yet responding"
+                })
+                return
+            except OSError:
+                print_error("Session dead", f"GDB process {meta.gdb_pid} no longer exists")
+                raise click.exceptions.Exit(1)
+
         print_error("Connection error", str(e))
         raise click.exceptions.Exit(1)
 

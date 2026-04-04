@@ -601,6 +601,7 @@ def handle_status(**kwargs) -> dict:
     session_meta = kwargs.get("_session_meta", {})
 
     result: dict = {
+        "state": "ready",
         "mode": session_meta.get("mode", "unknown"),
         "binary": session_meta.get("binary"),
     }

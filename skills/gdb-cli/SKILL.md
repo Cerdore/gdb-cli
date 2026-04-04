@@ -52,7 +52,15 @@ gdb-cli load --binary <binary_path> --core <core_path> [--gdb-path <gdb_path>]
 gdb-cli attach --pid <pid> [--binary <binary_path>]
 ```
 
-**Output:** A session_id like `"session_id": "a1b2c3"`. Store this for subsequent commands.
+**Output:** A `session_id` like `"session_id": "a1b2c3"`.
+
+For `load`, the command may return immediately with `"status": "loading"` while GDB is still parsing symbols and the core file. Poll until it becomes ready:
+
+```bash
+gdb-cli status -s $SESSION
+```
+
+Wait until the response includes `"state": "ready"` before running heavier inspection commands like `bt`, `threads`, or `eval-cmd`.
 
 ### Step 2: Gather Initial Information
 

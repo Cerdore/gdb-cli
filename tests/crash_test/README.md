@@ -14,6 +14,10 @@ ulimit -c unlimited
 
 # 使用 gdb-cli 加载 coredump
 gdb-cli load --binary ./crash_test --core ./core.<pid>
+
+# 记录返回的 session_id，然后等待 ready
+SESSION=<session_id>
+gdb-cli status -s $SESSION
 ```
 
 ## 崩溃类型
@@ -30,7 +34,7 @@ gdb-cli load --binary ./crash_test --core ./core.<pid>
 ### 1. 验证 threads 命令
 
 ```bash
-gdb-cli threads
+gdb-cli threads -s $SESSION
 ```
 
 预期看到 4-5 个线程：
@@ -41,7 +45,7 @@ gdb-cli threads
 ### 2. 验证 bt 命令
 
 ```bash
-gdb-cli bt
+gdb-cli bt -s $SESSION
 ```
 
 预期调用栈：
@@ -53,20 +57,20 @@ gdb-cli bt
 ...
 ```
 
-### 3. 验证 eval 命令
+### 3. 验证 eval-cmd 命令
 
 ```bash
 # 查看全局数据库结构
-gdb-cli eval "g_database"
+gdb-cli eval-cmd -s $SESSION "g_database"
 
 # 查看表信息
-gdb-cli eval "g_database.tables[0]"
+gdb-cli eval-cmd -s $SESSION "g_database.tables[0]"
 
 # 查看列信息
-gdb-cli eval "g_database.tables[0].columns[0]"
+gdb-cli eval-cmd -s $SESSION "g_database.tables[0].columns[0]"
 
 # 查看配置
-gdb-cli eval "g_database.config"
+gdb-cli eval-cmd -s $SESSION "g_database.config"
 ```
 
 ## 数据结构

@@ -112,12 +112,13 @@ def launch_core(
     if source_dir:
         gdb_commands.append(f"directory {source_dir}")
 
-    # 加载 binary 和 core
-    gdb_commands.append(f"file {binary}")
-    gdb_commands.append(f"core-file {core}")
-
     # 启动 RPC Server
     gdb_commands.extend(_build_server_commands(session))
+
+    # 加载 binary 和 core。Server 先启动，这样 load 可以异步返回。
+    gdb_commands.append(f"file {binary}")
+    gdb_commands.append(f"core-file {core}")
+    gdb_commands.append("python _gdb_rpc_server.set_ready()")
 
     # 构建 GDB 参数
     gdb_args = [gdb_path, "-nx", "-q"]
@@ -125,7 +126,7 @@ def launch_core(
         gdb_args.extend(["-ex", cmd])
 
     # 启动进程
-    _start_gdb_process(gdb_args, session)
+    _start_gdb_process(gdb_args, session, timeout=float(timeout))
     gdb_process = GDBProcess(session)
     gdb_process._process = session._gdb_process
     return gdb_process
@@ -199,6 +200,7 @@ def launch_attach(
 
     # 启动 RPC Server
     gdb_commands.extend(_build_server_commands(session))
+    gdb_commands.append("python _gdb_rpc_server.set_ready()")
 
     # 构建 GDB 参数
     gdb_args = [gdb_path, "-nx", "-q"]
@@ -206,7 +208,7 @@ def launch_attach(
         gdb_args.extend(["-ex", cmd])
 
     # 启动进程
-    _start_gdb_process(gdb_args, session)
+    _start_gdb_process(gdb_args, session, timeout=float(timeout))
     gdb_process = GDBProcess(session)
     gdb_process._process = session._gdb_process
     return gdb_process
@@ -214,8 +216,7 @@ def launch_attach(
 
 def _build_server_commands(session: SessionMeta) -> List[str]:
     """构建 RPC Server 启动命令"""
-    # 序列化 session 元数据
-    meta_json = json.dumps({
+    session_meta = {
         "session_id": session.session_id,
         "mode": session.mode,
         "binary": session.binary,
@@ -223,7 +224,10 @@ def _build_server_commands(session: SessionMeta) -> List[str]:
         "pid": session.pid,
         "sock_path": str(session.sock_path),
         "started_at": session.started_at,
-    })
+    }
+
+    # 序列化 session 元数据
+    meta_json = json.dumps(session_meta)
 
     # 需要转义 JSON 中的引号
     meta_escaped = meta_json.replace('"', '\\"')
@@ -237,11 +241,15 @@ def _build_server_commands(session: SessionMeta) -> List[str]:
         # 加载 Server 脚本 (source 会将定义加载到全局命名空间)
         f"source {GDB_SERVER_SCRIPT}",
         # 启动 Server (直接调用全局命名空间中的 start_server)
-        f"python start_server('{session.sock_path}', {json.dumps({'session_id': session.session_id, 'mode': session.mode})}, {session.heartbeat_timeout})",
+        f"python start_server('{session.sock_path}', {json.dumps(session_meta)}, {session.heartbeat_timeout})",
     ]
 
 
-def _start_gdb_process(gdb_args: List[str], session: SessionMeta) -> subprocess.Popen:
+def _start_gdb_process(
+    gdb_args: List[str],
+    session: SessionMeta,
+    timeout: float = 300.0
+) -> subprocess.Popen:
     """启动 GDB 进程"""
     try:
         # 创建 named FIFO 作为 GDB stdin，使 GDB 阻塞在读而不退出
@@ -258,13 +266,15 @@ def _start_gdb_process(gdb_args: List[str], session: SessionMeta) -> subprocess.
         # 所以用 O_RDWR 打开 FIFO，这样不会阻塞也不会产生 EOF
         fifo_fd = os.open(str(fifo_path), os.O_RDWR | os.O_NONBLOCK)
 
-        process = subprocess.Popen(
-            gdb_args,
-            stdin=fifo_fd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            start_new_session=True,  # 创建新的进程组
-        )
+        log_path = session_dir / "gdb.log"
+        with open(log_path, "w") as log_fd:
+            process = subprocess.Popen(
+                gdb_args,
+                stdin=fifo_fd,
+                stdout=subprocess.DEVNULL,
+                stderr=log_fd,
+                start_new_session=True,  # 创建新的进程组
+            )
 
         # 关闭父进程持有的 fd（子进程已继承）
         os.close(fifo_fd)
@@ -278,7 +288,7 @@ def _start_gdb_process(gdb_args: List[str], session: SessionMeta) -> subprocess.
         session._gdb_process = process
 
         # 等待 socket 文件创建
-        _wait_for_socket(Path(session.sock_path), timeout=300.0)
+        _wait_for_socket(Path(session.sock_path), timeout=timeout)
 
         return process
 

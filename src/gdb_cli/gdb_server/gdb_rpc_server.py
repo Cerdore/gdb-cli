@@ -67,6 +67,8 @@ class GDBRPCServer:
         self.accept_thread: Optional[threading.Thread] = None
         self.last_active = time.time()
         self.heartbeat_timer: Optional[threading.Timer] = None
+        self._state = "loading"
+        self._loading_start = time.time()
 
         # 命令处理器注册表
         self._handlers: Dict[str, Callable] = {}
@@ -104,7 +106,19 @@ class GDBRPCServer:
 
     def _handle_ping(self, **kwargs) -> dict:
         """心跳 ping 处理"""
-        return {"pong": True, "time": time.time()}
+        return {"pong": True, "time": time.time(), "state": self._state}
+
+    def _handle_loading_status(self) -> dict:
+        """加载阶段的轻量状态查询，不访问 GDB API。"""
+        return {
+            "state": "loading",
+            "elapsed": time.time() - self._loading_start,
+            "session_meta": self.session_meta,
+        }
+
+    def set_ready(self) -> None:
+        """标记会话已完成初始化，可以处理完整命令集。"""
+        self._state = "ready"
 
     def start(self) -> None:
         """启动监听线程，注册心跳定时器"""
@@ -245,6 +259,13 @@ class GDBRPCServer:
         if not cmd:
             raise ValueError("Missing 'cmd' in request")
 
+        if self._state == "loading":
+            if cmd == "status":
+                return self._handle_loading_status()
+            if cmd not in ("ping", "status"):
+                elapsed = time.time() - self._loading_start
+                raise ValueError(f"Session is loading ({elapsed:.0f}s elapsed)")
+
         handler = self._handlers.get(cmd)
         if not handler:
             raise ValueError(f"Unknown command: {cmd}")
@@ -314,6 +335,9 @@ def start_server(sock_path: str, session_meta: dict, heartbeat_timeout: int = 60
     """
     server = GDBRPCServer(sock_path, session_meta, heartbeat_timeout)
     server.start()
+
+    import __main__
+    __main__._gdb_rpc_server = server
 
     # 注册 before_prompt 事件来处理 post_event
     # 这样 GDB 在等待输入时会处理事件

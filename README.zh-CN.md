@@ -65,7 +65,22 @@ gdb-cli load --binary ./my_program --core ./core.12345
   "binary": "./my_program",
   "core": "./core.12345",
   "gdb_pid": 12345,
-  "status": "started"
+  "status": "loading"
+}
+```
+
+对于较大的二进制或 core 文件，`load` 可能会先返回，此时需要轮询直到会话就绪：
+
+```bash
+gdb-cli status -s f465d650
+```
+
+```json
+{
+  "session_id": "f465d650",
+  "state": "ready",
+  "mode": "core",
+  "binary": "./my_program"
 }
 ```
 
@@ -145,6 +160,8 @@ gdb-cli load --binary <path> --core <path> [options]
   --timeout         心跳超时秒数（默认 600）
   --gdb-path        GDB 可执行文件路径（默认 "gdb"）
 ```
+
+`load` 在 RPC Server 可连接后会立即返回 `"status": "loading"`。执行较重的查询前，请先通过 `gdb-cli status -s <session>` 轮询到 `"state": "ready"`。
 
 ### attach — Attach 到进程
 
