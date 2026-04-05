@@ -1,0 +1,200 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775297708113,
+  "projectRoot": "/Users/cerdore/gitRepo/gdb-cli",
+  "techStack": {
+    "languages": [
+      {
+        "name": "Python",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "pyproject.toml"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "pytest",
+        "version": null,
+        "category": "testing"
+      }
+    ],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": "pytest",
+    "lintCommand": "ruff check",
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "src",
+      "tests"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 0,
+      "lastAccessed": 1775297708094,
+      "keyFiles": []
+    },
+    "mydocs": {
+      "path": "mydocs",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1775297708094,
+      "keyFiles": []
+    },
+    "skills": {
+      "path": "skills",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1775297708095,
+      "keyFiles": [
+        "README.md"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 1,
+      "lastAccessed": 1775297708095,
+      "keyFiles": []
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 9,
+      "lastAccessed": 1775297708095,
+      "keyFiles": [
+        "__init__.py",
+        "test_async_load.py",
+        "test_cli_async.py",
+        "test_client.py",
+        "test_env_check.py"
+      ]
+    },
+    "tests/fixtures": {
+      "path": "tests/fixtures",
+      "purpose": "Test fixtures",
+      "fileCount": 1,
+      "lastAccessed": 1775297708095,
+      "keyFiles": [
+        "test_program.c"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/gdb_cli/cli.py",
+      "accessCount": 39,
+      "lastAccessed": 1775322495674,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 10,
+      "lastAccessed": 1775298579718,
+      "type": "directory"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 4,
+      "lastAccessed": 1775322770069,
+      "type": "file"
+    },
+    {
+      "path": "src/gdb_cli/locales/__init__.py",
+      "accessCount": 3,
+      "lastAccessed": 1775299510656,
+      "type": "file"
+    },
+    {
+      "path": "src/gdb_cli/locales/en.py",
+      "accessCount": 3,
+      "lastAccessed": 1775299510812,
+      "type": "file"
+    },
+    {
+      "path": "src/gdb_cli/i18n.py",
+      "accessCount": 3,
+      "lastAccessed": 1775375865222,
+      "type": "file"
+    },
+    {
+      "path": "src/gdb_cli/env_check.py",
+      "accessCount": 2,
+      "lastAccessed": 1775298546232,
+      "type": "file"
+    },
+    {
+      "path": "src/gdb_cli/errors.py",
+      "accessCount": 2,
+      "lastAccessed": 1775298546337,
+      "type": "file"
+    },
+    {
+      "path": "src/gdb_cli/locales/zh_cn.py",
+      "accessCount": 2,
+      "lastAccessed": 1775299634757,
+      "type": "file"
+    },
+    {
+      "path": "src/gdb_cli/locales/ru.py",
+      "accessCount": 2,
+      "lastAccessed": 1775299634917,
+      "type": "file"
+    },
+    {
+      "path": "README.ru.md",
+      "accessCount": 2,
+      "lastAccessed": 1775299732831,
+      "type": "file"
+    },
+    {
+      "path": "README.zh-CN.md",
+      "accessCount": 2,
+      "lastAccessed": 1775299744636,
+      "type": "file"
+    },
+    {
+      "path": "tests/test_i18n.py",
+      "accessCount": 2,
+      "lastAccessed": 1775321800045,
+      "type": "file"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-04-04-multilanguage-support-design.md",
+      "accessCount": 1,
+      "lastAccessed": 1775297719100,
+      "type": "file"
+    },
+    {
+      "path": "pyproject.toml",
+      "accessCount": 1,
+      "lastAccessed": 1775322770122,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

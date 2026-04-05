@@ -1,0 +1,516 @@
+- generic [ref=e2]:
+  - region
+  - generic [ref=e3]:
+    - link "Skip to content" [ref=e4] [cursor=pointer]:
+      - /url: "#start-of-content"
+    - banner [ref=e6]:
+      - heading "Navigation Menu" [level=2] [ref=e7]
+      - generic [ref=e8]:
+        - link "Homepage" [ref=e10] [cursor=pointer]:
+          - /url: /
+          - img [ref=e11]
+        - generic [ref=e13]:
+          - navigation "Global" [ref=e16]:
+            - list [ref=e17]:
+              - listitem [ref=e18]:
+                - button "Platform" [ref=e20] [cursor=pointer]:
+                  - text: Platform
+                  - img [ref=e21]
+              - listitem [ref=e23]:
+                - button "Solutions" [ref=e25] [cursor=pointer]:
+                  - text: Solutions
+                  - img [ref=e26]
+              - listitem [ref=e28]:
+                - button "Resources" [ref=e30] [cursor=pointer]:
+                  - text: Resources
+                  - img [ref=e31]
+              - listitem [ref=e33]:
+                - button "Open Source" [ref=e35] [cursor=pointer]:
+                  - text: Open Source
+                  - img [ref=e36]
+              - listitem [ref=e38]:
+                - button "Enterprise" [ref=e40] [cursor=pointer]:
+                  - text: Enterprise
+                  - img [ref=e41]
+              - listitem [ref=e43]:
+                - link "Pricing" [ref=e44] [cursor=pointer]:
+                  - /url: https://github.com/pricing
+                  - generic [ref=e45]: Pricing
+          - generic [ref=e46]:
+            - button "Search or jump to…" [ref=e49] [cursor=pointer]:
+              - img [ref=e51]
+            - link "Sign in" [ref=e54] [cursor=pointer]:
+              - /url: /login?return_to=https%3A%2F%2Fgithub.com%2Fpunkpeye%2Fawesome-mcp-servers%2Fissues
+            - link "Sign up" [ref=e55] [cursor=pointer]:
+              - /url: /signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E%2Fissues%2Findex&source=header-repo&source_repo=punkpeye%2Fawesome-mcp-servers
+            - button "Appearance settings" [ref=e58] [cursor=pointer]:
+              - img
+  - main [ref=e62]:
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e66]:
+          - img [ref=e67]
+          - link "punkpeye" [ref=e70] [cursor=pointer]:
+            - /url: /punkpeye
+          - generic [ref=e71]: /
+          - strong [ref=e72]:
+            - link "awesome-mcp-servers" [ref=e73] [cursor=pointer]:
+              - /url: /punkpeye/awesome-mcp-servers
+          - generic [ref=e74]: Public
+        - generic [ref=e75]:
+          - list:
+            - listitem [ref=e76]:
+              - link "You must be signed in to change notification settings" [ref=e77] [cursor=pointer]:
+                - /url: /login?return_to=%2Fpunkpeye%2Fawesome-mcp-servers
+                - img [ref=e78]
+                - text: Notifications
+            - listitem [ref=e80]:
+              - link "Fork 8.4k" [ref=e81] [cursor=pointer]:
+                - /url: /login?return_to=%2Fpunkpeye%2Fawesome-mcp-servers
+                - img [ref=e82]
+                - text: Fork
+                - generic "8,448" [ref=e84]: 8.4k
+            - listitem [ref=e85]:
+              - link "You must be signed in to star a repository" [ref=e87] [cursor=pointer]:
+                - /url: /login?return_to=%2Fpunkpeye%2Fawesome-mcp-servers
+                - img [ref=e88]
+                - text: Star
+                - generic "83741 users starred this repository" [ref=e90]: 83.7k
+      - navigation "Repository" [ref=e91]:
+        - list [ref=e92]:
+          - listitem [ref=e93]:
+            - link "Code" [ref=e94] [cursor=pointer]:
+              - /url: /punkpeye/awesome-mcp-servers
+              - img [ref=e95]
+              - generic [ref=e97]: Code
+          - listitem [ref=e98]:
+            - link "Issues 15" [ref=e99] [cursor=pointer]:
+              - /url: /punkpeye/awesome-mcp-servers/issues
+              - img [ref=e100]
+              - generic [ref=e103]: Issues
+              - generic "15" [ref=e104]
+          - listitem [ref=e105]:
+            - link "Pull requests 1.1k" [ref=e106] [cursor=pointer]:
+              - /url: /punkpeye/awesome-mcp-servers/pulls
+              - img [ref=e107]
+              - generic [ref=e109]: Pull requests
+              - generic "1,062" [ref=e110]: 1.1k
+          - listitem [ref=e111]:
+            - link "Actions" [ref=e112] [cursor=pointer]:
+              - /url: /punkpeye/awesome-mcp-servers/actions
+              - img [ref=e113]
+              - generic [ref=e115]: Actions
+          - listitem [ref=e116]:
+            - link "Projects" [ref=e117] [cursor=pointer]:
+              - /url: /punkpeye/awesome-mcp-servers/projects
+              - img [ref=e118]
+              - generic [ref=e120]: Projects
+          - listitem [ref=e121]:
+            - link "Security" [ref=e122] [cursor=pointer]:
+              - /url: /punkpeye/awesome-mcp-servers/security
+              - img [ref=e123]
+              - generic [ref=e125]: Security
+          - listitem [ref=e126]:
+            - link "Insights" [ref=e127] [cursor=pointer]:
+              - /url: /punkpeye/awesome-mcp-servers/pulse
+              - img [ref=e128]
+              - generic [ref=e130]: Insights
+    - generic [ref=e143]:
+      - heading "Issues" [level=1] [ref=e144]
+      - generic [ref=e145]:
+        - generic [ref=e147]:
+          - form "Search Issues" [ref=e149]:
+            - generic [ref=e150]: Search Issues
+            - generic [ref=e152]:
+              - generic [ref=e154]:
+                - generic [ref=e155]:
+                  - generic [ref=e156]:
+                    - text: "is:"
+                    - generic [ref=e157]: issue
+                  - generic [ref=e159]:
+                    - text: "state:"
+                    - generic [ref=e160]: open
+                - combobox "Search Issues" [ref=e163]: is:issue state:open
+              - button "Search" [ref=e164] [cursor=pointer]:
+                - img [ref=e165]
+          - generic [ref=e167]:
+            - link "Labels" [ref=e168] [cursor=pointer]:
+              - /url: /punkpeye/awesome-mcp-servers/labels
+              - generic [ref=e169]:
+                - generic:
+                  - img
+                - generic [ref=e170]: Labels
+            - link "Milestones" [ref=e171] [cursor=pointer]:
+              - /url: /punkpeye/awesome-mcp-servers/milestones
+              - generic [ref=e172]:
+                - generic:
+                  - img
+                - generic [ref=e173]: Milestones
+            - link "New issue" [ref=e174] [cursor=pointer]:
+              - /url: /login?return_to=https://github.com/punkpeye/awesome-mcp-servers/issues
+              - generic [ref=e176]: New issue
+        - generic [ref=e180]:
+          - heading "Search results" [level=2] [ref=e181]
+          - generic [ref=e182]:
+            - list [ref=e184]:
+              - listitem [ref=e185]:
+                - link "Open (15)" [ref=e186] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues
+                  - generic [ref=e187]: Open
+                  - generic [ref=e188]: "15"
+                  - generic [ref=e189]: (15)
+              - listitem [ref=e190]:
+                - link "Closed (264)" [ref=e191] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aclosed
+                  - generic [ref=e192]: Closed
+                  - generic [ref=e193]: "264"
+                  - generic [ref=e194]: (264)
+            - toolbar "Actions" [ref=e195]:
+              - generic [ref=e196]:
+                - button "Filter by author" [ref=e198] [cursor=pointer]:
+                  - generic [ref=e199]:
+                    - generic [ref=e200]: Author
+                    - generic:
+                      - img
+                - button "Filter by label" [ref=e202] [cursor=pointer]:
+                  - generic [ref=e203]:
+                    - generic [ref=e204]: Labels
+                    - generic:
+                      - img
+                - button "Filter by project" [ref=e206] [cursor=pointer]:
+                  - generic [ref=e207]:
+                    - generic [ref=e208]: Projects
+                    - generic:
+                      - img
+                - button "Filter by milestone" [ref=e210] [cursor=pointer]:
+                  - generic [ref=e211]:
+                    - generic [ref=e212]: Milestones
+                    - generic:
+                      - img
+                - button "Filter by assignees" [ref=e214] [cursor=pointer]:
+                  - generic [ref=e215]:
+                    - generic [ref=e216]: Assignees
+                    - generic:
+                      - img
+                - button "Sort by Newest , descending" [ref=e218] [cursor=pointer]:
+                  - generic [ref=e219]:
+                    - generic:
+                      - img
+                    - generic [ref=e220]:
+                      - generic [ref=e221]: Sort by
+                      - text: Newest
+                      - generic [ref=e222]: ", descending"
+                  - generic:
+                    - img
+          - list "Search results" [ref=e223]:
+            - 'listitem "Add AgentBazaar - A2A Agent Marketplace MCP Server: Status: Open. #3632 In punkpeye/awesome-mcp-servers;· cho165716-creator opened on Mar 21, 2026. More information available below." [ref=e226]':
+              - heading "Add AgentBazaar - A2A Agent Marketplace MCP Server" [level=3] [ref=e228]:
+                - link "Add AgentBazaar - A2A Agent Marketplace MCP Server" [ref=e229] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3632
+                  - generic [ref=e230]: Add AgentBazaar - A2A Agent Marketplace MCP Server
+              - generic [ref=e235]:
+                - img [ref=e236]
+                - generic [ref=e239]: "Status: Open."
+              - generic [ref=e243]:
+                - generic [ref=e244]:
+                  - generic [ref=e245]: "#3632"
+                  - generic [ref=e246]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e247]:
+                  - text: ·
+                  - link "cho165716-creator" [ref=e248] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3Acho165716-creator
+                  - text: opened
+                  - generic "Mar 21, 2026, 10:09 PM GMT+8" [ref=e249]: on Mar 21, 20262 hours ago
+            - 'listitem "Add AgentBazaar - A2A Agent Marketplace MCP Server: Status: Open. #3629 In punkpeye/awesome-mcp-servers;· cho165716-creator opened on Mar 21, 2026. More information available below." [ref=e256]':
+              - heading "Add AgentBazaar - A2A Agent Marketplace MCP Server" [level=3] [ref=e258]:
+                - link "Add AgentBazaar - A2A Agent Marketplace MCP Server" [ref=e259] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3629
+                  - generic [ref=e260]: Add AgentBazaar - A2A Agent Marketplace MCP Server
+              - generic [ref=e265]:
+                - img [ref=e266]
+                - generic [ref=e269]: "Status: Open."
+              - generic [ref=e273]:
+                - generic [ref=e274]:
+                  - generic [ref=e275]: "#3629"
+                  - generic [ref=e276]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e277]:
+                  - text: ·
+                  - link "cho165716-creator" [ref=e278] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3Acho165716-creator
+                  - text: opened
+                  - generic "Mar 21, 2026, 9:49 PM GMT+8" [ref=e279]: on Mar 21, 20262 hours ago
+            - 'listitem "Add Clawnkers Crypto Research (remote, Streamable HTTP): Status: Open. #3590 In punkpeye/awesome-mcp-servers;· JimmyClanker opened on Mar 21, 2026. More information available below." [ref=e286]':
+              - heading "Add Clawnkers Crypto Research (remote, Streamable HTTP)" [level=3] [ref=e288]:
+                - link "Add Clawnkers Crypto Research (remote, Streamable HTTP)" [ref=e289] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3590
+                  - generic [ref=e290]: Add Clawnkers Crypto Research (remote, Streamable HTTP)
+              - generic [ref=e295]:
+                - img [ref=e296]
+                - generic [ref=e299]: "Status: Open."
+              - generic [ref=e303]:
+                - generic [ref=e304]:
+                  - generic [ref=e305]: "#3590"
+                  - generic [ref=e306]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e307]:
+                  - text: ·
+                  - link "JimmyClanker" [ref=e308] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3AJimmyClanker
+                  - text: opened
+                  - generic "Mar 21, 2026, 7:13 AM GMT+8" [ref=e309]: on Mar 21, 202617 hours ago
+            - 'listitem "Add tunelo — expose localhost to internet via QUIC tunnel: Status: Open. #3573 In punkpeye/awesome-mcp-servers;· jiweiyuan opened on Mar 20, 2026. More information available below." [ref=e316]':
+              - heading "Add tunelo — expose localhost to internet via QUIC tunnel" [level=3] [ref=e318]:
+                - link "Add tunelo — expose localhost to internet via QUIC tunnel" [ref=e319] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3573
+                  - generic [ref=e320]: Add tunelo — expose localhost to internet via QUIC tunnel
+              - generic [ref=e325]:
+                - img [ref=e326]
+                - generic [ref=e329]: "Status: Open."
+              - generic [ref=e333]:
+                - generic [ref=e334]:
+                  - generic [ref=e335]: "#3573"
+                  - generic [ref=e336]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e337]:
+                  - text: ·
+                  - link "jiweiyuan" [ref=e338] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3Ajiweiyuan
+                  - text: opened
+                  - generic "Mar 20, 2026, 10:39 PM GMT+8" [ref=e339]: on Mar 20, 2026yesterday
+            - 'listitem "Add MisarMail — Remote email & marketing MCP server (Streamable HTTP): Status: Open. #3571 In punkpeye/awesome-mcp-servers;· mrgulshanyadav opened on Mar 20, 2026. More information available below." [ref=e346]':
+              - heading "Add MisarMail — Remote email & marketing MCP server (Streamable HTTP)" [level=3] [ref=e348]:
+                - link "Add MisarMail — Remote email & marketing MCP server (Streamable HTTP)" [ref=e349] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3571
+                  - generic [ref=e350]: Add MisarMail — Remote email & marketing MCP server (Streamable HTTP)
+              - generic [ref=e355]:
+                - img [ref=e356]
+                - generic [ref=e359]: "Status: Open."
+              - generic [ref=e363]:
+                - generic [ref=e364]:
+                  - generic [ref=e365]: "#3571"
+                  - generic [ref=e366]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e367]:
+                  - text: ·
+                  - link "mrgulshanyadav" [ref=e368] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3Amrgulshanyadav
+                  - text: opened
+                  - generic "Mar 20, 2026, 9:44 PM GMT+8" [ref=e369]: on Mar 20, 2026yesterday
+            - 'listitem "Add AnveVoice — Voice AI MCP Server (46 tools for website voice assistants): Status: Open. #3569 In punkpeye/awesome-mcp-servers;· ANVEAI opened on Mar 20, 2026. More information available below." [ref=e376]':
+              - heading "Add AnveVoice — Voice AI MCP Server (46 tools for website voice assistants)" [level=3] [ref=e378]:
+                - link "Add AnveVoice — Voice AI MCP Server (46 tools for website voice assistants)" [ref=e379] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3569
+                  - generic [ref=e380]: Add AnveVoice — Voice AI MCP Server (46 tools for website voice assistants)
+              - generic [ref=e385]:
+                - img [ref=e386]
+                - generic [ref=e389]: "Status: Open."
+              - generic [ref=e393]:
+                - generic [ref=e394]:
+                  - generic [ref=e395]: "#3569"
+                  - generic [ref=e396]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e397]:
+                  - text: ·
+                  - link "ANVEAI" [ref=e398] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3AANVEAI
+                  - text: opened
+                  - generic "Mar 20, 2026, 5:43 PM GMT+8" [ref=e399]: on Mar 20, 2026yesterday
+            - 'listitem "[Server] google-mcp-autopilot — One-instruction Google Workspace MCP deployment: Status: Open. #3551 In punkpeye/awesome-mcp-servers;· joshchaotang opened on Mar 20, 2026. More information available below." [ref=e406]':
+              - heading "[Server] google-mcp-autopilot — One-instruction Google Workspace MCP deployment" [level=3] [ref=e408]:
+                - link "[Server] google-mcp-autopilot — One-instruction Google Workspace MCP deployment" [ref=e409] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3551
+                  - generic [ref=e410]: "[Server] google-mcp-autopilot — One-instruction Google Workspace MCP deployment"
+              - generic [ref=e415]:
+                - img [ref=e416]
+                - generic [ref=e419]: "Status: Open."
+              - generic [ref=e423]:
+                - generic [ref=e424]:
+                  - generic [ref=e425]: "#3551"
+                  - generic [ref=e426]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e427]:
+                  - text: ·
+                  - link "joshchaotang" [ref=e428] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3Ajoshchaotang
+                  - text: opened
+                  - generic "Mar 20, 2026, 9:21 AM GMT+8" [ref=e429]: on Mar 20, 20262 days ago
+            - 'listitem "Add Hive Mind — Swarm Intelligence for AI Agents: Status: Open. #3547 In punkpeye/awesome-mcp-servers;· AiAgentKarl opened on Mar 20, 2026. More information available below." [ref=e436]':
+              - heading "Add Hive Mind — Swarm Intelligence for AI Agents" [level=3] [ref=e438]:
+                - link "Add Hive Mind — Swarm Intelligence for AI Agents" [ref=e439] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3547
+                  - generic [ref=e440]: Add Hive Mind — Swarm Intelligence for AI Agents
+              - generic [ref=e445]:
+                - img [ref=e446]
+                - generic [ref=e449]: "Status: Open."
+              - generic [ref=e453]:
+                - generic [ref=e454]:
+                  - generic [ref=e455]: "#3547"
+                  - generic [ref=e456]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e457]:
+                  - text: ·
+                  - link "AiAgentKarl" [ref=e458] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3AAiAgentKarl
+                  - text: opened
+                  - generic "Mar 20, 2026, 8:42 AM GMT+8" [ref=e459]: on Mar 20, 20262 days ago
+            - 'listitem "Add 5 Agent Economy Infrastructure Servers: Status: Open. #3546 In punkpeye/awesome-mcp-servers;· AiAgentKarl opened on Mar 20, 2026. More information available below." [ref=e466]':
+              - heading "Add 5 Agent Economy Infrastructure Servers" [level=3] [ref=e468]:
+                - link "Add 5 Agent Economy Infrastructure Servers" [ref=e469] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3546
+                  - generic [ref=e470]: Add 5 Agent Economy Infrastructure Servers
+              - generic [ref=e475]:
+                - img [ref=e476]
+                - generic [ref=e479]: "Status: Open."
+              - generic [ref=e483]:
+                - generic [ref=e484]:
+                  - generic [ref=e485]: "#3546"
+                  - generic [ref=e486]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e487]:
+                  - text: ·
+                  - link "AiAgentKarl" [ref=e488] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3AAiAgentKarl
+                  - text: opened
+                  - generic "Mar 20, 2026, 8:31 AM GMT+8" [ref=e489]: on Mar 20, 20262 days ago
+            - 'listitem "Add API-to-MCP Converter, Agent Feedback Loop, Prompt Library, Agent Coordination: Status: Open. #3543 In punkpeye/awesome-mcp-servers;· AiAgentKarl opened on Mar 20, 2026. More information available below." [ref=e496]':
+              - heading "Add API-to-MCP Converter, Agent Feedback Loop, Prompt Library, Agent Coordination" [level=3] [ref=e498]:
+                - link "Add API-to-MCP Converter, Agent Feedback Loop, Prompt Library, Agent Coordination" [ref=e499] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3543
+                  - generic [ref=e500]: Add API-to-MCP Converter, Agent Feedback Loop, Prompt Library, Agent Coordination
+              - generic [ref=e505]:
+                - img [ref=e506]
+                - generic [ref=e509]: "Status: Open."
+              - generic [ref=e513]:
+                - generic [ref=e514]:
+                  - generic [ref=e515]: "#3543"
+                  - generic [ref=e516]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e517]:
+                  - text: ·
+                  - link "AiAgentKarl" [ref=e518] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3AAiAgentKarl
+                  - text: opened
+                  - generic "Mar 20, 2026, 8:13 AM GMT+8" [ref=e519]: on Mar 20, 20262 days ago
+            - 'listitem "Add MCP Hub — The App Store for MCP Servers: Status: Open. #3540 In punkpeye/awesome-mcp-servers;· AiAgentKarl opened on Mar 20, 2026. More information available below." [ref=e526]':
+              - heading "Add MCP Hub — The App Store for MCP Servers" [level=3] [ref=e528]:
+                - link "Add MCP Hub — The App Store for MCP Servers" [ref=e529] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3540
+                  - generic [ref=e530]: Add MCP Hub — The App Store for MCP Servers
+              - generic [ref=e535]:
+                - img [ref=e536]
+                - generic [ref=e539]: "Status: Open."
+              - generic [ref=e543]:
+                - generic [ref=e544]:
+                  - generic [ref=e545]: "#3540"
+                  - generic [ref=e546]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e547]:
+                  - text: ·
+                  - link "AiAgentKarl" [ref=e548] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3AAiAgentKarl
+                  - text: opened
+                  - generic "Mar 20, 2026, 7:54 AM GMT+8" [ref=e549]: on Mar 20, 20262 days ago
+            - 'listitem "Security Warning: iflow-mcp mass-forking and republishing MCP servers: Status: Open. #3447 In punkpeye/awesome-mcp-servers;· CSCSoftware opened on Mar 19, 2026. More information available below." [ref=e556]':
+              - 'heading "Security Warning: iflow-mcp mass-forking and republishing MCP servers" [level=3] [ref=e558]':
+                - 'link "Security Warning: iflow-mcp mass-forking and republishing MCP servers" [ref=e559] [cursor=pointer]':
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3447
+                  - generic [ref=e560]: "Security Warning: iflow-mcp mass-forking and republishing MCP servers"
+              - generic [ref=e565]:
+                - img [ref=e566]
+                - generic [ref=e569]: "Status: Open."
+              - generic [ref=e573]:
+                - generic [ref=e574]:
+                  - generic [ref=e575]: "#3447"
+                  - generic [ref=e576]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e577]:
+                  - text: ·
+                  - link "CSCSoftware" [ref=e578] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3ACSCSoftware
+                  - text: opened
+                  - generic "Mar 19, 2026, 12:33 AM GMT+8" [ref=e579]: on Mar 19, 20263 days ago
+              - generic "1 comment;" [ref=e582]:
+                - generic [ref=e583]:
+                  - img [ref=e584]
+                  - generic [ref=e586]: "1"
+                  - generic [ref=e587]: comment
+            - 'listitem "[Cookiy] Connector cannot complete OAuth; connect fails with Missing Bearer token: Status: Open. #3427 In punkpeye/awesome-mcp-servers;· yupeng-dev opened on Mar 18, 2026. More information available below." [ref=e591]':
+              - heading "[Cookiy] Connector cannot complete OAuth; connect fails with Missing Bearer token" [level=3] [ref=e593]:
+                - link "[Cookiy] Connector cannot complete OAuth; connect fails with Missing Bearer token" [ref=e594] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3427
+                  - generic [ref=e595]: "[Cookiy] Connector cannot complete OAuth; connect fails with Missing Bearer token"
+              - generic [ref=e600]:
+                - img [ref=e601]
+                - generic [ref=e604]: "Status: Open."
+              - generic [ref=e608]:
+                - generic [ref=e609]:
+                  - generic [ref=e610]: "#3427"
+                  - generic [ref=e611]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e612]:
+                  - text: ·
+                  - link "yupeng-dev" [ref=e613] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3Ayupeng-dev
+                  - text: opened
+                  - generic "Mar 18, 2026, 5:40 PM GMT+8" [ref=e614]: on Mar 18, 20263 days ago
+            - 'listitem "[Tuning Engines] Unable to claim server: Status: Open. #3355 In punkpeye/awesome-mcp-servers;· cerebrixos opened on Mar 17, 2026. More information available below." [ref=e621]':
+              - heading "[Tuning Engines] Unable to claim server" [level=3] [ref=e623]:
+                - link "[Tuning Engines] Unable to claim server" [ref=e624] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3355
+                  - generic [ref=e625]: "[Tuning Engines] Unable to claim server"
+              - generic [ref=e630]:
+                - img [ref=e631]
+                - generic [ref=e634]: "Status: Open."
+              - generic [ref=e638]:
+                - generic [ref=e639]:
+                  - generic [ref=e640]: "#3355"
+                  - generic [ref=e641]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e642]:
+                  - text: ·
+                  - link "cerebrixos" [ref=e643] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3Acerebrixos
+                  - text: opened
+                  - generic "Mar 17, 2026, 6:46 AM GMT+8" [ref=e644]: on Mar 17, 20265 days ago
+            - 'listitem "Add DocAPI — Agentic-first HTML to PDF MCP Server: Status: Open. #3338 In punkpeye/awesome-mcp-servers;· sk25649 opened on Mar 16, 2026. More information available below." [ref=e651]':
+              - heading "Add DocAPI — Agentic-first HTML to PDF MCP Server" [level=3] [ref=e653]:
+                - link "Add DocAPI — Agentic-first HTML to PDF MCP Server" [ref=e654] [cursor=pointer]:
+                  - /url: /punkpeye/awesome-mcp-servers/issues/3338
+                  - generic [ref=e655]: Add DocAPI — Agentic-first HTML to PDF MCP Server
+              - generic [ref=e660]:
+                - img [ref=e661]
+                - generic [ref=e664]: "Status: Open."
+              - generic [ref=e668]:
+                - generic [ref=e669]:
+                  - generic [ref=e670]: "#3338"
+                  - generic [ref=e671]: In punkpeye/awesome-mcp-servers;
+                - generic [ref=e672]:
+                  - text: ·
+                  - link "sk25649" [ref=e673] [cursor=pointer]:
+                    - /url: /punkpeye/awesome-mcp-servers/issues?q=is%3Aissue%20state%3Aopen%20author%3Ask25649
+                  - text: opened
+                  - generic "Mar 16, 2026, 11:23 PM GMT+8" [ref=e674]: on Mar 16, 20265 days ago
+  - contentinfo [ref=e679]:
+    - heading "Footer" [level=2] [ref=e680]
+    - generic [ref=e681]:
+      - generic [ref=e682]:
+        - link "GitHub Homepage" [ref=e683] [cursor=pointer]:
+          - /url: https://github.com
+          - img [ref=e684]
+        - generic [ref=e686]: © 2026 GitHub, Inc.
+      - navigation "Footer" [ref=e687]:
+        - heading "Footer navigation" [level=3] [ref=e688]
+        - list "Footer navigation" [ref=e689]:
+          - listitem [ref=e690]:
+            - link "Terms" [ref=e691] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/github-terms/github-terms-of-service
+          - listitem [ref=e692]:
+            - link "Privacy" [ref=e693] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/privacy-policies/github-privacy-statement
+          - listitem [ref=e694]:
+            - link "Security" [ref=e695] [cursor=pointer]:
+              - /url: https://github.com/security
+          - listitem [ref=e696]:
+            - link "Status" [ref=e697] [cursor=pointer]:
+              - /url: https://www.githubstatus.com/
+          - listitem [ref=e698]:
+            - link "Community" [ref=e699] [cursor=pointer]:
+              - /url: https://github.community/
+          - listitem [ref=e700]:
+            - link "Docs" [ref=e701] [cursor=pointer]:
+              - /url: https://docs.github.com/
+          - listitem [ref=e702]:
+            - link "Contact" [ref=e703] [cursor=pointer]:
+              - /url: https://support.github.com?tags=dotcom-footer
+          - listitem [ref=e704]:
+            - button "Manage cookies" [ref=e706] [cursor=pointer]
+          - listitem [ref=e707]:
+            - button "Do not share my personal information" [ref=e709] [cursor=pointer]

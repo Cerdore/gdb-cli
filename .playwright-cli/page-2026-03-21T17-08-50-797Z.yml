@@ -1,0 +1,350 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - link "Skip to main content" [ref=e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - generic [ref=e4]:
+      - link "Glama - Privacy-First All-in-one AI workspace" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - text: Glama
+      - generic [ref=e6]:
+        - navigation [ref=e7]:
+          - link "Chat" [active] [ref=e8] [cursor=pointer]:
+            - /url: /chat
+          - button "MCP" [ref=e9] [cursor=pointer]
+          - link "Gateway" [ref=e10] [cursor=pointer]:
+            - /url: /gateway
+          - link "Models" [ref=e11] [cursor=pointer]:
+            - /url: /gateway/models
+          - link "Pricing" [ref=e12] [cursor=pointer]:
+            - /url: /pricing
+          - link "Discord" [ref=e13] [cursor=pointer]:
+            - /url: /discord
+            - img "Discord" [ref=e14]
+        - button "Sign Up" [ref=e16] [cursor=pointer]
+  - generic [ref=e2184]:
+    - generic [ref=e2185]:
+      - generic [ref=e2186]:
+        - img [ref=e2188]
+        - 'heading "All-in-one AI workspace: upload, analyze, visualize" [level=1] [ref=e2190]'
+        - generic [ref=e2191]:
+          - link "Sign Up for Glama" [ref=e2193] [cursor=pointer]:
+            - /url: /sign-up
+          - link "What is Glama?" [ref=e2195] [cursor=pointer]:
+            - /url: /chat#about
+        - generic [ref=e2196]:
+          - heading "Trusted by 50,000+ Businesses and Professionals" [level=2] [ref=e2197]
+          - generic [ref=e2199]:
+            - generic "Databricks" [ref=e2200]:
+              - img "Databricks" [ref=e2201]
+            - generic "Accenture" [ref=e2203]:
+              - img "Accenture" [ref=e2204]
+            - generic "Shopify" [ref=e2206]:
+              - img "Shopify" [ref=e2207]
+            - generic "Cloudflare" [ref=e2209]:
+              - img "Cloudflare" [ref=e2210]
+            - generic "Duolingo" [ref=e2212]:
+              - img "Duolingo" [ref=e2213]
+            - generic "Zomato" [ref=e2215]:
+              - img "Zomato" [ref=e2216]
+            - generic "Zillow" [ref=e2218]:
+              - img "Zillow" [ref=e2219]
+            - generic "Square" [ref=e2221]:
+              - img "Square" [ref=e2222]
+            - generic "UiPath" [ref=e2224]:
+              - img "UiPath" [ref=e2225]
+            - generic "Neo4j" [ref=e2227]:
+              - img "Neo4j" [ref=e2228]
+            - generic "Databricks" [ref=e2230]:
+              - img "Databricks" [ref=e2231]
+            - generic "Accenture" [ref=e2233]:
+              - img "Accenture" [ref=e2234]
+            - generic "Shopify" [ref=e2236]:
+              - img "Shopify" [ref=e2237]
+            - generic "Cloudflare" [ref=e2239]:
+              - img "Cloudflare" [ref=e2240]
+            - generic "Duolingo" [ref=e2242]:
+              - img "Duolingo" [ref=e2243]
+            - generic "Zomato" [ref=e2245]:
+              - img "Zomato" [ref=e2246]
+            - generic "Zillow" [ref=e2248]:
+              - img "Zillow" [ref=e2249]
+            - generic "Square" [ref=e2251]:
+              - img "Square" [ref=e2252]
+            - generic "UiPath" [ref=e2254]:
+              - img "UiPath" [ref=e2255]
+            - generic "Neo4j" [ref=e2257]:
+              - img "Neo4j" [ref=e2258]
+      - generic [ref=e2262]:
+        - img [ref=e2268]
+        - img [ref=e2275]
+        - img [ref=e2282]
+        - img [ref=e2289]
+        - img [ref=e2296]
+        - img [ref=e2303]
+        - img [ref=e2310]
+        - img [ref=e2323]
+      - generic [ref=e2331]:
+        - generic [ref=e2332]: One Platform, Every AI Model
+        - generic [ref=e2333]:
+          - text: Access
+          - link "every leading model" [ref=e2334] [cursor=pointer]:
+            - /url: /gateway/models
+          - text: with a single account. Same familiar UI &
+          - link "API" [ref=e2335] [cursor=pointer]:
+            - /url: /gateway
+          - text: ", powerful features, no limits."
+        - link "Start Your Free Trial" [ref=e2337] [cursor=pointer]:
+          - /url: /sign-up
+        - paragraph [ref=e2340]:
+          - link "View pricing" [ref=e2341] [cursor=pointer]:
+            - /url: /pricing
+      - generic [ref=e2343]:
+        - paragraph [ref=e2344]:
+          - text: Glama is a ChatGPT alternative for power users, with features like
+          - link "API gateway" [ref=e2345] [cursor=pointer]:
+            - /url: /gateway
+          - text: ", agents,"
+          - link "MCP" [ref=e2346] [cursor=pointer]:
+            - /url: /mcp
+          - text: ", prompt templates, and more."
+        - paragraph [ref=e2347]: Scroll down to learn more.
+      - list [ref=e2348]:
+        - listitem [ref=e2349]:
+          - img [ref=e2350]
+          - generic [ref=e2351]:
+            - heading "One Question, Multiple AI Perspectives" [level=3] [ref=e2352]
+            - paragraph [ref=e2353]: Stop guessing which AI works best. Compare responses side-by-side and identify the winning answers.
+        - listitem [ref=e2354]:
+          - img [ref=e2355]
+          - generic [ref=e2356]:
+            - generic [ref=e2357]:
+              - generic [ref=e2358]: Pro
+              - generic [ref=e2359]: Business
+            - heading "Turn Mountains of Documents into Instant Insights" [level=3] [ref=e2360]
+            - paragraph [ref=e2361]: Upload any PDF, Word doc, or text file. Get instant answers with exact page references.
+        - listitem [ref=e2362]:
+          - img [ref=e2363]
+          - generic [ref=e2364]:
+            - heading "Never Lose Important Information Again" [level=3] [ref=e2365]
+            - paragraph [ref=e2366]: Search across documents and chats. Save and tag important conversations.
+        - listitem [ref=e2367]:
+          - img [ref=e2368]
+          - generic [ref=e2369]:
+            - generic [ref=e2370]:
+              - generic [ref=e2371]: Pro
+              - generic [ref=e2372]: Business
+            - heading "Visualize Complex Ideas Instantly" [level=3] [ref=e2373]
+            - paragraph [ref=e2374]: Transform text descriptions into professional diagrams.
+        - listitem [ref=e2375]:
+          - img [ref=e2376]
+          - generic [ref=e2377]:
+            - generic [ref=e2378]:
+              - generic [ref=e2379]: Pro
+              - generic [ref=e2380]: Business
+            - heading "Breakdown and Solve Math Problems" [level=3] [ref=e2381]
+            - paragraph [ref=e2382]: Write math as naturally as typing text. Get publication-quality KaTex output.
+        - listitem [ref=e2383]:
+          - img [ref=e2384]
+          - generic [ref=e2385]:
+            - heading "Future-Proof Your AI Strategy" [level=3] [ref=e2386]
+            - paragraph [ref=e2387]: Stay ahead with instant access to new AI models as they launch. From GPT-4 to Claude to Gemini - and whatever comes next - Glama keeps you at the cutting edge..
+        - listitem [ref=e2388]:
+          - img [ref=e2389]
+          - generic [ref=e2390]:
+            - heading "Everything Has A Shortcut" [level=3] [ref=e2391]
+            - paragraph [ref=e2392]: Fly through your AI conversations twice as fast as before.
+        - listitem [ref=e2393]:
+          - img [ref=e2394]
+          - generic [ref=e2395]:
+            - heading "Compose Faster With A Modern Editor" [level=3] [ref=e2396]
+            - paragraph [ref=e2397]: Paste entire documents, tables, and code blocks into your chats.
+      - generic [ref=e2398]:
+        - generic [ref=e2399]:
+          - heading "Your Data is Safe" [level=3] [ref=e2400]
+          - paragraph [ref=e2401]: We protect your business data and conversations with robust encryption (AES 256, TLS 1.2+), SOC 2 compliance, and a commitment to never using your data for AI training.
+        - generic [ref=e2402]:
+          - heading "Built for Seamless Teamwork" [level=3] [ref=e2403]
+          - paragraph [ref=e2404]: Share resources (private by default), track usage, manage access, and consolidate billing – all designed for seamless team collaboration.
+        - generic [ref=e2405]:
+          - generic [ref=e2406]:
+            - heading "OpenAI compatible API" [level=3] [ref=e2407]
+            - paragraph [ref=e2408]: Everything that is available through Glama web UI is also available through our API.
+            - paragraph [ref=e2409]:
+              - text: Connect, load balance, setup fallbacks and seamlessly manage
+              - link "100+ AI models" [ref=e2410] [cursor=pointer]:
+                - /url: /gateway/models
+              - text: using an OpenAI compatible API.
+            - paragraph [ref=e2411]: Benefit from our globally distributed infrastructure, no rate limits, built-in monitoring and consolidated billing.
+          - code [ref=e2417]:
+            - generic [ref=e2419]: "import { OpenAI } from 'openai'"
+            - generic [ref=e2423]: "const openai = new OpenAI({"
+            - generic [ref=e2425]: "baseURL: GLAMA_GATEWAY_URL,"
+            - generic [ref=e2427]: "apiKey: GLAMA_API_KEY,"
+            - generic [ref=e2429]: "});"
+            - generic [ref=e2433]: "await openai.chat.completions.create({"
+            - generic [ref=e2435]: "messages: ["
+            - generic [ref=e2437]: "{ role: 'user', content: 'Hello!' }"
+            - generic [ref=e2439]: "],"
+            - generic [ref=e2441]: "model: 'anthropic/claude-2',"
+            - generic [ref=e2443]: "});"
+        - generic [ref=e2444]:
+          - generic [ref=e2445]:
+            - heading "Complete Transparency with Detailed Logs" [level=3] [ref=e2446]
+            - paragraph [ref=e2447]: Every API interaction is logged, allowing you to track spending, audit usage, implement guardrails, and troubleshoot issues. Easily export logs to JSON format.
+          - generic [ref=e2448]:
+            - img
+    - generic [ref=e2449]:
+      - paragraph [ref=e2450]: Pricing
+      - paragraph [ref=e2451]:
+        - text: Pay only for tokens you use at
+        - link "provider prices" [ref=e2452] [cursor=pointer]:
+          - /url: /gateway/models
+        - text: – no hidden markups
+      - generic [ref=e2453]:
+        - generic [ref=e2454]:
+          - generic [ref=e2455]:
+            - heading "Starter" [level=2] [ref=e2456]
+            - paragraph [ref=e2457]: For personal use
+          - generic [ref=e2458]:
+            - list [ref=e2459]:
+              - listitem [ref=e2460]: $9/month in credits
+              - listitem [ref=e2461]:
+                - text: Chat &
+                - link "API access" [ref=e2462] [cursor=pointer]:
+                  - /url: /gateway
+              - listitem [ref=e2463]: No rate limits
+              - listitem [ref=e2464]: Custom agents
+              - listitem [ref=e2465]:
+                - link "Automations" [ref=e2466] [cursor=pointer]:
+                  - /url: https://glama.ai/blog/2025-10-22-what-are-automations
+            - separator [ref=e2467]
+            - list [ref=e2468]:
+              - listitem [ref=e2469]:
+                - text: 3 fast
+                - link "hosted MCP servers" [ref=e2470] [cursor=pointer]:
+                  - /url: https://glama.ai/blog/2025-09-10-glama-mcp-server-hosting
+              - listitem [ref=e2471]: $4 per additional server
+              - listitem [ref=e2472]:
+                - text: Unlimited
+                - link "MCP connectors" [ref=e2473] [cursor=pointer]:
+                  - /url: https://glama.ai/blog/2025-10-22-what-are-mcp-connectors
+            - separator [ref=e2474]
+            - list [ref=e2475]:
+              - listitem [ref=e2476]: 100k logs/month
+              - listitem [ref=e2477]: $9 for additional 100k logs
+              - listitem [ref=e2478]: 30 days retention
+          - generic [ref=e2480]: $9/month
+          - link "Sign Up" [ref=e2481] [cursor=pointer]:
+            - /url: /sign-up
+        - generic [ref=e2482]:
+          - generic [ref=e2483]:
+            - heading "Pro" [level=2] [ref=e2484]
+            - paragraph [ref=e2485]: For collaboration
+          - generic [ref=e2486]:
+            - list [ref=e2487]:
+              - listitem [ref=e2488]: $26/month in credits
+              - listitem [ref=e2489]: Everything in Starter
+              - listitem [ref=e2490]: File uploads (PDFs)
+              - listitem [ref=e2491]: Projects
+              - listitem [ref=e2492]: Memory
+              - listitem [ref=e2493]: Web fetch tool
+              - listitem [ref=e2494]: Web search tool
+            - separator [ref=e2495]
+            - list [ref=e2496]:
+              - listitem [ref=e2497]:
+                - text: 10 fast
+                - link "hosted MCP servers" [ref=e2498] [cursor=pointer]:
+                  - /url: https://glama.ai/blog/2025-09-10-glama-mcp-server-hosting
+              - listitem [ref=e2499]: $3 per additional server
+              - listitem [ref=e2500]: Persistent storage
+            - separator [ref=e2501]
+            - list [ref=e2502]:
+              - listitem [ref=e2503]: 100k logs/month
+              - listitem [ref=e2504]: $6 for additional 100k logs
+              - listitem [ref=e2505]: 90 days retention
+          - generic [ref=e2507]: $26/month
+          - link "Start Now" [ref=e2508] [cursor=pointer]:
+            - /url: /sign-up
+        - generic [ref=e2509]:
+          - generic [ref=e2510]:
+            - heading "Business" [level=2] [ref=e2511]
+            - paragraph [ref=e2512]: For automated workflows
+          - generic [ref=e2513]:
+            - list [ref=e2514]:
+              - listitem [ref=e2515]: $80/month in credits
+              - listitem [ref=e2516]: Everything in Pro
+              - listitem [ref=e2517]: Custom exports
+              - listitem [ref=e2518]: Priority customer support
+              - listitem [ref=e2519]:
+                - link "Request labeling" [ref=e2520] [cursor=pointer]:
+                  - /url: https://glama.ai/gateway/docs/request-labeling
+            - separator [ref=e2521]
+            - list [ref=e2522]:
+              - listitem [ref=e2523]:
+                - text: 30 fast
+                - link "hosted MCP servers" [ref=e2524] [cursor=pointer]:
+                  - /url: https://glama.ai/blog/2025-09-10-glama-mcp-server-hosting
+              - listitem [ref=e2525]: $2 per additional server
+            - separator [ref=e2526]
+            - list [ref=e2527]:
+              - listitem [ref=e2528]: 100k logs/month
+              - listitem [ref=e2529]: $3 for additional 100k logs
+              - listitem [ref=e2530]: 180 days retention
+          - generic [ref=e2532]: $80/month
+          - link "Start Now" [ref=e2533] [cursor=pointer]:
+            - /url: /sign-up
+      - generic [ref=e2535]:
+        - button "Which AI models are supported?" [ref=e2537] [cursor=pointer]:
+          - paragraph [ref=e2538]: Which AI models are supported?
+          - img [ref=e2540]
+        - button "Can I cancel at any time?" [ref=e2543] [cursor=pointer]:
+          - paragraph [ref=e2544]: Can I cancel at any time?
+          - img [ref=e2546]
+      - generic [ref=e2548]:
+        - paragraph [ref=e2549]: Join Our Community
+        - paragraph [ref=e2550]: Join our community for product updates, feature discussions, and support.
+        - generic [ref=e2551]:
+          - link "Discord Discord 1,976 members" [ref=e2552] [cursor=pointer]:
+            - /url: /discord
+            - generic [ref=e2553]:
+              - img "Discord" [ref=e2554]
+              - generic [ref=e2556]: Discord
+              - generic [ref=e2557]: 1,976 members
+          - link "Reddit 216 members" [ref=e2558] [cursor=pointer]:
+            - /url: https://reddit.com/r/glama
+            - generic [ref=e2559]:
+              - img [ref=e2560]
+              - generic [ref=e2562]: Reddit
+              - generic [ref=e2563]: 216 members
+    - generic [ref=e2564]:
+      - generic [ref=e2566]: Enterprise-grade security, privacy, and the most powerful version of ChatGPT tailored for your organization.
+      - generic [ref=e2568]: Enterprise-grade security, privacy, and the most powerful version of ChatGPT tailored for your organization.
+      - generic [ref=e2570]: Enterprise-grade security, privacy, and the most powerful version of ChatGPT tailored for your organization.
+    - generic [ref=e2571]:
+      - generic [ref=e2573]: Enterprise-grade security, privacy, and the most powerful version of ChatGPT tailored for your organization. Enterprise-grade security, privacy, and the most powerful version of ChatGPT tailored for your organization.
+      - generic [ref=e2575]: Enterprise-grade security, privacy, and the most powerful version of ChatGPT tailored for your organization. Enterprise-grade security, privacy, and the most powerful version of ChatGPT tailored for your organization.
+      - generic [ref=e2577]: Enterprise-grade security, privacy, and the most powerful version of ChatGPT tailored for your organization. Enterprise-grade security, privacy, and the most powerful version of ChatGPT tailored for your organization.
+    - generic [ref=e2579]:
+      - separator [ref=e2580]
+      - generic [ref=e2581]:
+        - generic [ref=e2582]:
+          - link "API" [ref=e2583] [cursor=pointer]:
+            - /url: /gateway
+          - link "Models" [ref=e2584] [cursor=pointer]:
+            - /url: /gateway/models
+          - link "MCP" [ref=e2585] [cursor=pointer]:
+            - /url: /mcp/servers
+          - link "Blog" [ref=e2586] [cursor=pointer]:
+            - /url: /blog
+          - link "Support" [ref=e2587] [cursor=pointer]:
+            - /url: /support
+          - link "Terms of Service" [ref=e2588] [cursor=pointer]:
+            - /url: /policies/terms-of-service
+          - link "Privacy Policy" [ref=e2589] [cursor=pointer]:
+            - /url: /policies/privacy-policy
+          - link "VDP" [ref=e2590] [cursor=pointer]:
+            - /url: /policies/vulnerability-disclosure
+        - link "All systems online" [ref=e2592] [cursor=pointer]:
+          - /url: /status
+          - generic [ref=e2596]: All systems online
+  - region "top-end Notifications alt+T"

@@ -1,0 +1,20 @@
+- generic [ref=e1]:
+  - text: Validation required. If this doesn't work, you can email
+  - text: hn@ycombinator.com with your username and we'll try to help.
+  - text: Login
+  - generic [ref=e2]:
+    - table [ref=e3]:
+      - rowgroup [ref=e4]:
+        - 'row "username: Cerdore" [ref=e5]':
+          - cell "username:" [ref=e6]
+          - cell "Cerdore" [ref=e7]:
+            - textbox [active] [ref=e8]: Cerdore
+        - 'row "password: chenonly1" [ref=e9]':
+          - cell "password:" [ref=e10]
+          - cell "chenonly1" [ref=e11]:
+            - textbox [ref=e12]: chenonly1
+    - iframe [ref=e16]:
+      
+    - button "login" [ref=e17]
+  - link "Forgot your password?" [ref=e18] [cursor=pointer]:
+    - /url: forgot?id=Cerdore

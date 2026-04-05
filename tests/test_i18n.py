@@ -2,14 +2,12 @@
 Tests for i18n module
 """
 
-import os
-import pytest
 from gdb_cli.i18n import (
+    get_current_locale,
     normalize_locale,
+    reset_locale,
     resolve_locale,
     set_locale,
-    get_current_locale,
-    reset_locale,
     t,
 )
 from gdb_cli.locales import get_catalog, get_supported_locales

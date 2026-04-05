@@ -7,8 +7,8 @@ i18n Module - 国际化支持
 - t(): 翻译查找 + 参数插值
 """
 
-import os
 import locale as sys_locale
+import os
 from typing import Optional
 
 # 支持的语言
