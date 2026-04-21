@@ -6,6 +6,7 @@ Command Handlers - GDB 命令处理器
 """
 
 import os
+import queue
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
@@ -571,7 +572,26 @@ def handle_exec(
                 }
 
     try:
-        output = gdb.execute(command, to_string=True)
+
+        # The command must run in the main thread, not in the thread that
+        # receives from the socket.  Create a function which will execute
+        # the command and pass the output through a queue.  This definition
+        # uses lexical scoping for the command and the queue.
+        result_queue = queue.Queue()
+
+        def run_command():
+            try:
+                output = gdb.execute(command, to_string=True)
+                result_queue.put(("ok", output))
+            except Exception as e:
+                result_queue.put(("error", str(e)))
+
+        # Pass the function through post_event() to the main thread,
+        # where it will run, and this thread waits to receive the output
+        # from the queue.
+        gdb.post_event(run_command)
+        output_status, output = result_queue.get(timeout=30.0)
+
         return {
             "command": command,
             "output": output or "(no output)"
