@@ -270,7 +270,7 @@ def launch_target(
     if binary:
         gdb_commands.append(f"file {binary}")
 
-    # Attach
+    # Target
     gdb_commands.append(f"target extended-remote {remote}")
 
     # scheduler-locking

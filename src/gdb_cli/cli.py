@@ -208,7 +208,7 @@ def target(
         print_json({
             "session_id": existing.session_id,
             "mode": existing.mode,
-            "pid": existing.pid,
+            "remote": existing.remote,
             "status": "reused",
             "message": "Session already exists for this remote"
         })
@@ -231,7 +231,7 @@ def target(
         print_json({
             "session_id": session.session_id,
             "mode": session.mode,
-            "pid": session.pid,
+            "remote": session.remote,
             "binary": session.binary,
             "remote": session.remote,
             "sock_path": session.sock_path,
