@@ -4,6 +4,7 @@ GDB CLI - 命令行入口
 Usage:
     gdb-cli load --binary ./my_program --core ./core.1234
     gdb-cli attach --pid 9876
+    gdb-cli target --remote 192.168.0.21:3333
     gdb-cli eval-cmd --session <id> "lock_mgr->buckets[0]"
     gdb-cli threads --session <id> [--limit 20]
     gdb-cli bt --session <id> [--thread 12] [--limit 30]
@@ -21,11 +22,12 @@ import click
 from . import __version__
 from .client import GDBClient, GDBClientError, GDBCommandError
 from .i18n import t
-from .launcher import GDBLauncherError, launch_attach, launch_core
+from .launcher import GDBLauncherError, launch_attach, launch_core, launch_target
 from .session import (
     cleanup_dead_sessions,
     find_session_by_core,
     find_session_by_pid,
+    find_session_by_remote,
     get_session,
     list_sessions,
 )
@@ -182,6 +184,68 @@ def attach(
 
 
 @main.command()
+@click.option("--remote", "-r", required=True, type=str, help=t("cli.target.remote_help"))
+@click.option("--binary", "-b", help=t("cli.target.binary_help"))
+@click.option("--scheduler-locking/--no-scheduler-locking", default=True, help=t("cli.target.scheduler_locking_help"))
+@click.option("--non-stop/--no-non-stop", default=False, help=t("cli.target.non_stop_help"))
+@click.option("--timeout", default=600, help=t("cli.target.timeout_help"))
+@click.option("--allow-write", is_flag=True, help=t("cli.target.allow_write_help"))
+@click.option("--allow-call", is_flag=True, help=t("cli.target.allow_call_help"))
+@click.option("--gdb-path", default="gdb", help=t("cli.load.gdb_path_help"))
+def target(
+    remote: str,
+    binary: Optional[str],
+    scheduler_locking: bool,
+    non_stop: bool,
+    timeout: int,
+    allow_write: bool,
+    allow_call: bool,
+    gdb_path: str,
+) -> None:
+    """Connect to remote GDB server"""
+    existing = find_session_by_remote(remote)
+    if existing:
+        print_json({
+            "session_id": existing.session_id,
+            "mode": existing.mode,
+            "pid": existing.pid,
+            "status": "reused",
+            "message": "Session already exists for this remote"
+        })
+        return
+
+    try:
+        gdb_process = launch_target(
+            remote=remote,
+            binary=binary,
+            scheduler_locking=scheduler_locking,
+            non_stop=non_stop,
+            timeout=timeout,
+            allow_write=allow_write,
+            allow_call=allow_call,
+            gdb_path=gdb_path
+        )
+
+        session = gdb_process.session
+
+        print_json({
+            "session_id": session.session_id,
+            "mode": session.mode,
+            "pid": session.pid,
+            "binary": session.binary,
+            "remote": session.remote,
+            "sock_path": session.sock_path,
+            "gdb_pid": gdb_process.pid,
+            "safety_level": session.safety_level,
+            "status": "started"
+        })
+
+    except GDBLauncherError as e:
+        print_error("Failed to connect to target", str(e))
+        raise click.exceptions.Exit(1)
+
+
+@main.command()
 @click.option("--session", "-s", required=True, help=t("cli.eval_cmd.session_help"))
 @click.argument("expr")
 @click.option("--max-depth", default=3, help=t("cli.eval_cmd.max_depth_help"))
@@ -330,7 +394,9 @@ def sessions() -> None:
                 "mode": s.mode,
                 "binary": s.binary,
                 "pid": s.pid,
+                "remote": s.remote,
                 "core": s.core,
+                "gdb_pid": s.gdb_pid,
                 "started_at": s.started_at,
             }
             for s in session_list

@@ -588,7 +588,7 @@ def handle_status(**kwargs) -> dict:
 
     Returns:
         {
-            "mode": "core" | "attach",
+            "mode": "core" | "attach" | "target",
             "binary": "...",
             "threads_count": N,
             "current_thread": {...},
@@ -604,6 +604,7 @@ def handle_status(**kwargs) -> dict:
         "state": "ready",
         "mode": session_meta.get("mode", "unknown"),
         "binary": session_meta.get("binary"),
+        "gdb_pid": session_meta.get("gdb_pid"),
     }
 
     # 线程信息
@@ -639,6 +640,9 @@ def handle_status(**kwargs) -> dict:
     # 进程信息 (attach 模式)
     if session_meta.get("mode") == "attach":
         result["pid"] = session_meta.get("pid")
+
+    if session_meta.get("mode") == "target":
+        result["remote"] = session_meta.get("remote")
 
     return result
 
