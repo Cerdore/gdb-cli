@@ -321,7 +321,7 @@ def _build_server_commands(session: SessionMeta) -> List[str]:
         # 加载 Server 脚本 (source 会将定义加载到全局命名空间)
         f"source {GDB_SERVER_SCRIPT}",
         # 启动 Server (直接调用全局命名空间中的 start_server)
-        f"python start_server('{session.sock_path}', {json.dumps(session_meta)}, {session.heartbeat_timeout})",
+        f"python start_server('{session.sock_path}', {session_meta}, {session.heartbeat_timeout})",
     ]
 
 
