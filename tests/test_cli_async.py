@@ -2,6 +2,7 @@
 
 import importlib
 import sys
+import time
 import types
 import unittest
 from unittest.mock import Mock, patch
@@ -92,7 +93,7 @@ class TestCLIAsyncBehavior(unittest.TestCase):
         self.assertEqual(payload["session_id"], "abc12345")
 
     def test_status_falls_back_to_loading_when_process_alive(self):
-        meta = types.SimpleNamespace(gdb_pid=12345)
+        meta = types.SimpleNamespace(gdb_pid=12345, started_at=time.time() - 150)
 
         with patch.object(self.cli, "get_client", side_effect=self.cli.GDBClientError("socket not ready")), \
              patch.object(self.cli, "get_session", return_value=meta), \
