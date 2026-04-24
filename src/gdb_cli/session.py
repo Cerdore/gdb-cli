@@ -50,7 +50,7 @@ def create_session(
     binary: Optional[str] = None,
     core: Optional[str] = None,
     pid: Optional[int] = None,
-    remote: Optional[int] = None,
+    remote: Optional[str] = None,
     timeout: int = 600,
     safety_level: str = "readonly"
 ) -> SessionMeta:

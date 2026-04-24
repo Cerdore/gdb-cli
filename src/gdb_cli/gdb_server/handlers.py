@@ -590,7 +590,14 @@ def handle_exec(
         # where it will run, and this thread waits to receive the output
         # from the queue.
         gdb.post_event(run_command)
-        output_status, output = result_queue.get(timeout=30.0)
+
+        try:
+            output_status, output = result_queue.get(timeout=60.0)
+        except queue.Empty:
+            return {"command": command, "error": "Command timeout after 60s"}
+
+        if output_status == "error":
+            return {"command": command, "error": output}
 
         return {
             "command": command,

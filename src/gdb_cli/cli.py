@@ -14,8 +14,8 @@ Usage:
 
 import json
 import os
+import re
 import time
-from pathlib import Path
 from typing import Optional
 
 import click
@@ -204,6 +204,10 @@ def target(
     gdb_path: str,
 ) -> None:
     """Connect to remote GDB server"""
+    if not re.match(r'^[\w.-]+:\d+$', remote):
+        print_error(f"Invalid remote format: {remote}")
+        raise click.exceptions.Exit(1)
+
     existing = find_session_by_remote(remote)
     if existing:
         print_json({
@@ -234,7 +238,6 @@ def target(
             "mode": session.mode,
             "remote": session.remote,
             "binary": session.binary,
-            "remote": session.remote,
             "sock_path": session.sock_path,
             "gdb_pid": gdb_process.pid,
             "safety_level": session.safety_level,

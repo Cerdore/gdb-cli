@@ -265,6 +265,7 @@ def launch_target(
     if non_stop:
         gdb_commands.append("set non-stop on")
         gdb_commands.append("set target-async on")
+        gdb_commands.append("set mi-async on")
 
     # 加载 binary (可选)
     if binary:
