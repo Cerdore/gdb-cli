@@ -42,6 +42,11 @@ If gdb-cli is not installed, guide the user: `pip install git+https://github.com
 
 ### Step 1: Initialize Debug Session
 
+**For debugging a binary file through a target running on a remote host and port**
+```bash
+gdb-cli target --binary <binary_path> --remote <host_name>:<port_number> [--gdb-path <gdb_path>]
+```
+
 **For core dump analysis:**
 ```bash
 gdb-cli load --binary <binary_path> --core <core_path> [--gdb-path <gdb_path>]

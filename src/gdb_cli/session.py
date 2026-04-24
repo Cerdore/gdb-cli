@@ -23,10 +23,11 @@ SESSION_DIR = Path.home() / ".gdb-cli" / "sessions"
 class SessionMeta:
     """会话元数据"""
     session_id: str                    # UUID
-    mode: str                          # "core" | "attach"
+    mode: str                          # "core" | "attach" | "target"
     binary: Optional[str] = None       # 可执行文件路径
     core: Optional[str] = None         # Core dump 路径 (core 模式)
     pid: Optional[int] = None          # 目标进程 PID (attach 模式)
+    remote: Optional[str] = None       # host:port for target
     gdb_pid: Optional[int] = None      # GDB 进程 PID
     sock_path: Optional[str] = None    # Unix Socket 路径
     started_at: float = field(default_factory=time.time)
@@ -49,6 +50,7 @@ def create_session(
     binary: Optional[str] = None,
     core: Optional[str] = None,
     pid: Optional[int] = None,
+    remote: Optional[int] = None,
     timeout: int = 600,
     safety_level: str = "readonly"
 ) -> SessionMeta:
@@ -56,10 +58,11 @@ def create_session(
     创建新会话
 
     Args:
-        mode: 模式 ("core" | "attach")
+        mode: 模式 ("core" | "attach" | "target")
         binary: 可执行文件路径
         core: Core dump 路径
         pid: 目标进程 PID
+        remote: host:port
         timeout: 心跳超时秒数
         safety_level: 安全级别
 
@@ -83,6 +86,7 @@ def create_session(
         binary=binary,
         core=core,
         pid=pid,
+        remote=remote,
         sock_path=str(sock_path),
         heartbeat_timeout=timeout,
         safety_level=safety_level
@@ -287,6 +291,21 @@ def find_session_by_core(core: str) -> Optional[SessionMeta]:
         if session.mode == "core" and session.core:
             if Path(session.core).resolve() == core_path:
                 return session
+    return None
+
+
+def find_session_by_remote(remote: str) -> Optional[SessionMeta]:
+    """
+    Args:
+        remote: host:port
+
+    Returns:
+        已存在的 SessionMeta 或 None
+    """
+    sessions = list_sessions(alive_only=True)
+    for session in sessions:
+        if session.mode == "target" and session.remote == remote:
+            return session
     return None
 
 

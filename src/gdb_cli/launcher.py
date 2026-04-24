@@ -185,7 +185,10 @@ def launch_attach(
     # non-stop 模式
     if non_stop:
         gdb_commands.append("set non-stop on")
-        gdb_commands.append("set target-async on")
+        gdb_commands.append("set mi-async on")
+    else:
+        gdb_commands.append("set non-stop off")
+        gdb_commands.append("set mi-async off")
 
     # 加载 binary (可选)
     if binary:
@@ -193,6 +196,82 @@ def launch_attach(
 
     # Attach
     gdb_commands.append(f"attach {pid}")
+
+    # scheduler-locking
+    if scheduler_locking:
+        gdb_commands.append("set scheduler-locking on")
+
+    # 启动 RPC Server
+    gdb_commands.extend(_build_server_commands(session))
+    gdb_commands.append("python _gdb_rpc_server.set_ready()")
+
+    # 构建 GDB 参数
+    gdb_args = [gdb_path, "-nx", "-q"]
+    for cmd in gdb_commands:
+        gdb_args.extend(["-ex", cmd])
+
+    # 启动进程
+    _start_gdb_process(gdb_args, session, timeout=float(timeout))
+    gdb_process = GDBProcess(session)
+    gdb_process._process = session._gdb_process
+    return gdb_process
+
+
+def launch_target(
+    remote: str,
+    binary: Optional[str] = None,
+    scheduler_locking: bool = True,
+    non_stop: bool = False,
+    timeout: int = 600,
+    allow_write: bool = False,
+    allow_call: bool = False,
+    gdb_path: str = "gdb"
+) -> GDBProcess:
+    """
+    Args:
+        remote: host:port
+        binary: 可执行文件路径 (可选)
+        scheduler_locking: 是否启用 scheduler-locking
+        non_stop: 是否启用 non-stop 模式
+        timeout: 心跳超时秒数
+        allow_write: 是否允许内存修改
+        allow_call: 是否允许函数调用
+        gdb_path: GDB 可执行文件路径
+
+    Returns:
+        GDBProcess 实例
+    """
+    # 创建 session
+    safety_level = "full" if (allow_write or allow_call) else "readonly"
+    if allow_write and not allow_call:
+        safety_level = "readwrite"
+
+    session = create_session(
+        mode="target",
+        remote=remote,
+        binary=binary,
+        timeout=timeout,
+        safety_level=safety_level
+    )
+
+    # 构建 GDB 启动命令
+    gdb_commands = [
+        "set pagination off",
+        "set print elements 0",
+        "set confirm off",
+    ]
+
+    # non-stop 模式
+    if non_stop:
+        gdb_commands.append("set non-stop on")
+        gdb_commands.append("set target-async on")
+
+    # 加载 binary (可选)
+    if binary:
+        gdb_commands.append(f"file {binary}")
+
+    # Target
+    gdb_commands.append(f"target extended-remote {remote}")
 
     # scheduler-locking
     if scheduler_locking:
@@ -222,6 +301,7 @@ def _build_server_commands(session: SessionMeta) -> List[str]:
         "binary": session.binary,
         "core": session.core,
         "pid": session.pid,
+        "remote": session.remote,
         "sock_path": str(session.sock_path),
         "started_at": session.started_at,
     }
@@ -241,7 +321,7 @@ def _build_server_commands(session: SessionMeta) -> List[str]:
         # 加载 Server 脚本 (source 会将定义加载到全局命名空间)
         f"source {GDB_SERVER_SCRIPT}",
         # 启动 Server (直接调用全局命名空间中的 start_server)
-        f"python start_server('{session.sock_path}', {json.dumps(session_meta)}, {session.heartbeat_timeout})",
+        f"python start_server('{session.sock_path}', {session_meta}, {session.heartbeat_timeout})",
     ]
 
 
