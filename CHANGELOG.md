@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-04-25
+
+### Security
+- Fix RCE via `exec` command: `python` command now blocked, `SafetyFilter` integrated at runtime
+- Fix RCE via `thread-apply`: zero safety filtering now enforced with `SafetyFilter.check_command()`
+- Fix privilege escalation: server now enforces session-configured `safety_level`, ignores client override
+
+### Added
+- Signal handlers (SIGTERM/SIGINT) for clean GDB child process cleanup
+- PID reuse detection via `psutil.Process(name)` cross-verification
+
+### Changed
+- All handler calls now routed through `gdb.post_event()` for thread safety
+- `_wait_for_socket` now checks GDB process health during polling
+
+### Fixed
+- FIFO/file descriptor leak in launcher exception paths
+- Heartbeat timeout now cleans up socket file before `os._exit()`
+- `SafetyFilter` path resolution in `handlers.py` (was pointing to wrong directory)
+
+### Tests
+- Rewrote `test_safety.py` (32 tests), `test_handlers.py` (20 tests), `test_session.py` (10 tests), `test_client.py` (11 tests) — previously all `pass` stubs
+- Added E2E test suite: `test_e2e_core_analysis.py`, `test_e2e_multithread.py`, `test_e2e_memory.py` (11 tests, skipped when GDB unavailable)
+- Added test infrastructure: `conftest.py` with pytest fixtures, `helpers.py` with test utilities
+
 ## [0.2.0] - 2026-04-25
 
 ### Added

@@ -1,485 +1,254 @@
 """Tests for command handlers module.
 
-Tests handlers.py: 命令处理器（需 mock gdb module）
-- eval 表达式解析
-- threads 分页和过滤
-- bt 回溯
-
-Based on Spec §4.2:
-    def handle_eval(expr: str, max_depth: int, max_elements: int) -> dict
-    def handle_threads(range_str: Optional[str], limit: int,
-                       filter_state: Optional[str]) -> dict
-    def handle_backtrace(thread_id: Optional[int], limit: int,
-                         full: bool) -> dict
-    def handle_frame_select(number: int) -> dict
-    def handle_locals(thread_id: Optional[int], frame: int) -> dict
-    def handle_exec(command: str, safety_level: str) -> dict
-    def handle_status() -> dict
-
-Note: These tests require mocking the gdb module which is only
-available inside the GDB Python interpreter.
+Tests handlers.py: command handlers with mocked gdb module.
 """
 
 import os
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 # Mock gdb module before any imports that depend on it
-sys.modules['gdb'] = Mock()
+sys.modules['gdb'] = MagicMock()
 
 # Set up the server directory for value_formatter import
-# This must be done before importing handlers
 _server_dir = str(Path(__file__).parent.parent / "src" / "gdb_cli" / "gdb_server")
 os.environ["GDB_CLI_SERVER_DIR"] = _server_dir
 
-from gdb_cli.gdb_server.handlers import (
-    handle_eval,
-)
+
+class TestHandleExec(unittest.TestCase):
+    """Test raw command execution handler with safety filtering."""
+
+    def setUp(self):
+        import importlib
+        import gdb_cli.gdb_server.handlers as handlers_mod
+        importlib.reload(handlers_mod)
+        self.handlers = handlers_mod
+
+    def test_exec_allowed_read_command(self):
+        """exec of a read command should be allowed."""
+        # Make gdb.post_event call the function directly
+        sys.modules['gdb'].post_event = lambda fn: fn()
+        sys.modules['gdb'].execute = Mock(return_value="#0 main at foo.c:10")
+
+        result = self.handlers.handle_exec("bt", safety_level="readonly")
+        self.assertIn("command", result)
+        self.assertEqual(result["command"], "bt")
+
+    def test_exec_shell_blocked(self):
+        """exec of 'shell' must be blocked."""
+        result = self.handlers.handle_exec("shell ls", safety_level="readonly")
+        self.assertIn("error", result)
+
+    def test_exec_python_blocked(self):
+        """exec of 'python' must be blocked (Issue #1 fix)."""
+        result = self.handlers.handle_exec("python import os; os.system('id')", safety_level="readonly")
+        self.assertIn("error", result)
+
+    def test_exec_python_interactive_blocked(self):
+        """exec of 'python-interactive' must be blocked."""
+        result = self.handlers.handle_exec("python-interactive", safety_level="readonly")
+        self.assertIn("error", result)
+
+    def test_exec_quit_blocked(self):
+        """exec of 'quit' must be blocked."""
+        result = self.handlers.handle_exec("quit", safety_level="readonly")
+        self.assertIn("error", result)
+
+    def test_exec_kill_blocked(self):
+        """exec of 'kill' must be blocked."""
+        result = self.handlers.handle_exec("kill", safety_level="readonly")
+        self.assertIn("error", result)
+
+    def test_exec_signal_blocked(self):
+        """exec of 'signal' must be blocked."""
+        result = self.handlers.handle_exec("signal 9", safety_level="readonly")
+        self.assertIn("error", result)
+
+    def test_exec_set_blocked_in_readonly(self):
+        """exec of 'set' must be blocked in readonly mode."""
+        result = self.handlers.handle_exec("set variable x=42", safety_level="readonly")
+        self.assertIn("error", result)
+
+    def test_exec_set_allowed_in_full(self):
+        """exec of 'set' must be allowed in full mode."""
+        # Make gdb.post_event call the function directly
+        sys.modules['gdb'].post_event = lambda fn: fn()
+        sys.modules['gdb'].execute = Mock(return_value="")
+
+        result = self.handlers.handle_exec("set variable x=42", safety_level="full")
+        self.assertNotIn("error", result)
+
+    def test_exec_attach_blocked(self):
+        """exec of 'attach' must be blocked."""
+        result = self.handlers.handle_exec("attach 12345", safety_level="full")
+        self.assertIn("error", result)
+
+    def test_exec_detach_blocked(self):
+        """exec of 'detach' must be blocked."""
+        result = self.handlers.handle_exec("detach", safety_level="full")
+        self.assertIn("error", result)
+
+    def test_exec_target_blocked(self):
+        """exec of 'target' must be blocked."""
+        result = self.handlers.handle_exec("target extended-remote :3333", safety_level="full")
+        self.assertIn("error", result)
 
 
-class MockGDBValue:
-    """Mock for gdb.Value."""
+class TestHandleThreadApply(unittest.TestCase):
+    """Test thread_apply handler with safety filtering."""
 
-    def __init__(self, value, type_name="int"):
-        self._value = value
-        self.type = Mock()
-        self.type.name = type_name
-        self.type.code = self._get_type_code(type_name)
+    def setUp(self):
+        import importlib
+        import gdb_cli.gdb_server.handlers as handlers_mod
+        importlib.reload(handlers_mod)
+        self.handlers = handlers_mod
 
-    def _get_type_code(self, type_name):
-        # Mock type codes matching gdb type codes
-        import gdb
-        codes = {
-            "int": gdb.TYPE_CODE_INT,
-            "pointer": gdb.TYPE_CODE_PTR,
-            "array": gdb.TYPE_CODE_ARRAY,
-            "struct": gdb.TYPE_CODE_STRUCT,
-        }
-        return codes.get(type_name, gdb.TYPE_CODE_INT)
+    def test_thread_apply_shell_blocked(self):
+        """thread-apply with 'shell' must be blocked (Issue #2 fix)."""
+        # Mock inferior threads
+        mock_thread = Mock()
+        mock_thread.num = 1
+        mock_inferior = Mock()
+        mock_inferior.threads.return_value = [mock_thread]
+        sys.modules['gdb'].selected_inferior = Mock(return_value=mock_inferior)
+        sys.modules['gdb'].selected_thread = Mock(return_value=mock_thread)
 
-    def __str__(self):
-        return str(self._value)
+        result = self.handlers.handle_thread_apply(
+            command="shell ls",
+            all_threads=True,
+            safety_level="readonly",
+        )
+        self.assertIn("error", result)
 
+    def test_thread_apply_python_blocked(self):
+        """thread-apply with 'python' must be blocked (Issue #2 fix)."""
+        mock_thread = Mock()
+        mock_thread.num = 1
+        mock_inferior = Mock()
+        mock_inferior.threads.return_value = [mock_thread]
+        sys.modules['gdb'].selected_inferior = Mock(return_value=mock_inferior)
+        sys.modules['gdb'].selected_thread = Mock(return_value=mock_thread)
 
-class MockGDBThread:
-    """Mock for gdb.Thread."""
+        result = self.handlers.handle_thread_apply(
+            command="python import os",
+            all_threads=True,
+            safety_level="readonly",
+        )
+        self.assertIn("error", result)
 
-    def __init__(self, num, name="Thread", state="stopped"):
-        self.num = num
-        self.name = name
-        self.state = state
-        self.ptid = (1, num, 0)
+    def test_thread_apply_quit_blocked(self):
+        """thread-apply with 'quit' must be blocked."""
+        mock_thread = Mock()
+        mock_thread.num = 1
+        mock_inferior = Mock()
+        mock_inferior.threads.return_value = [mock_thread]
+        sys.modules['gdb'].selected_inferior = Mock(return_value=mock_inferior)
+        sys.modules['gdb'].selected_thread = Mock(return_value=mock_thread)
 
-    def is_running(self):
-        return self.state == "running"
+        result = self.handlers.handle_thread_apply(
+            command="quit",
+            all_threads=True,
+            safety_level="readonly",
+        )
+        self.assertIn("error", result)
 
-    def is_stopped(self):
-        return self.state == "stopped"
+    def test_thread_apply_allowed_read_command(self):
+        """thread-apply with 'bt' should be allowed."""
+        mock_thread = Mock()
+        mock_thread.num = 1
+        mock_inferior = Mock()
+        mock_inferior.threads.return_value = [mock_thread]
+        sys.modules['gdb'].selected_inferior = Mock(return_value=mock_inferior)
+        sys.modules['gdb'].selected_thread = Mock(return_value=mock_thread)
+        sys.modules['gdb'].execute = Mock(return_value="#0 main at foo.c:10")
 
-    def switch(self):
-        pass
-
-
-class MockGDBInferior:
-    """Mock for gdb.Inferior."""
-
-    def __init__(self, threads=None):
-        self.threads_list = threads or []
-
-    def threads(self):
-        return self.threads_list
-
-
-class MockGDBFrame:
-    """Mock for gdb.Frame."""
-
-    def __init__(self, level, function, file=None, line=None):
-        self.level = level
-        self.function = function
-        self.file = file
-        self.line = line
-        self.pc = 0x1234
-
-    def older(self):
-        # Return next frame in chain or None
-        return None
-
-    def name(self):
-        return self.function
-
-    def find_sal(self):
-        sal = Mock()
-        sal.symtab = Mock()
-        sal.symtab.filename = self.file
-        sal.line = self.line
-        return sal
+        result = self.handlers.handle_thread_apply(
+            command="bt",
+            all_threads=True,
+            safety_level="readonly",
+        )
+        self.assertNotIn("error", result)
+        self.assertIn("results", result)
 
 
 class TestHandleEval(unittest.TestCase):
     """Test eval expression handler."""
 
-    @patch("gdb.parse_and_eval")
-    def test_eval_simple_expression(self, mock_parse):
-        """Test eval simple expression."""
-        # Spec §4.2: handle_eval(expr, max_depth, max_elements)
-        # Input: expr="42"
-        # Expected: {"value": 42, "type": "int"}
+    def setUp(self):
+        import importlib
+        import gdb_cli.gdb_server.handlers as handlers_mod
+        importlib.reload(handlers_mod)
+        self.handlers = handlers_mod
+
+    def test_eval_simple_expression(self):
+        """Test eval simple expression returns expression key."""
         mock_val = Mock()
         mock_val.type.name = "int"
-        mock_val.type.code = 1  # TYPE_CODE_INT
+        mock_val.type.code = 1
         mock_val.__str__ = Mock(return_value="42")
-        mock_parse.return_value = mock_val
+        sys.modules['gdb'].parse_and_eval = Mock(return_value=mock_val)
 
-        result = handle_eval("42")
+        result = self.handlers.handle_eval("42")
         self.assertIn("expression", result)
         self.assertEqual(result["expression"], "42")
 
-    @patch("gdb.parse_and_eval")
-    def test_eval_variable(self, mock_parse):
+    def test_eval_variable(self):
         """Test eval variable expression."""
-        # Input: expr="x"
-        # Expected: value and type of variable x
-        pass  # Placeholder until implementation
+        mock_val = Mock()
+        mock_val.type.name = "int"
+        mock_val.type.code = 1
+        mock_val.__str__ = Mock(return_value="7")
+        sys.modules['gdb'].parse_and_eval = Mock(return_value=mock_val)
 
-    @patch("gdb.parse_and_eval")
-    def test_eval_pointer_dereference(self, mock_parse):
-        """Test eval pointer dereference."""
-        # Input: expr="*ptr"
-        # Expected: dereferenced value
-        pass  # Placeholder until implementation
-
-    @patch("gdb.parse_and_eval")
-    def test_eval_struct_member(self, mock_parse):
-        """Test eval struct member access."""
-        # Input: expr="obj.field"
-        # Expected: field value with struct context
-        pass  # Placeholder until implementation
-
-    @patch("gdb.parse_and_eval")
-    def test_eval_array_index(self, mock_parse):
-        """Test eval array index."""
-        # Input: expr="arr[0]"
-        # Expected: array element value
-        pass  # Placeholder until implementation
-
-    @patch("gdb.parse_and_eval")
-    def test_eval_with_max_depth(self, mock_parse):
-        """Test eval respects max_depth for nested structures."""
-        # Input: max_depth=2, nested struct depth=5
-        # Expected: truncated at depth 2 with hint
-        pass  # Placeholder until implementation
-
-    @patch("gdb.parse_and_eval")
-    def test_eval_with_max_elements(self, mock_parse):
-        """Test eval respects max_elements for arrays."""
-        # Input: max_elements=10, array length=100
-        # Expected: truncated array with total_count
-        pass  # Placeholder until implementation
-
-    @patch("gdb.parse_and_eval")
-    def test_eval_memory_error(self, mock_parse):
-        """Test eval handles gdb.MemoryError."""
-        # Spec §2.6: gdb.MemoryError -> {"ok": False, "error": "Cannot access memory"}
-        mock_parse.side_effect = Exception("Cannot access memory")
-        pass  # Placeholder until implementation
-
-    @patch("gdb.parse_and_eval")
-    def test_eval_syntax_error(self, mock_parse):
-        """Test eval handles syntax error."""
-        # Input: invalid expression
-        # Expected: error response with gdb.error
-        pass  # Placeholder until implementation
+        result = self.handlers.handle_eval("x")
+        self.assertIn("expression", result)
+        self.assertEqual(result["expression"], "x")
 
 
 class TestHandleThreads(unittest.TestCase):
     """Test threads listing handler."""
 
-    @patch("gdb.selected_inferior")
-    def test_threads_basic(self, mock_inferior):
+    def setUp(self):
+        import importlib
+        import gdb_cli.gdb_server.handlers as handlers_mod
+        importlib.reload(handlers_mod)
+        self.handlers = handlers_mod
+
+    def test_threads_basic(self):
         """Test basic threads listing."""
-        # Spec §4.2: handle_threads(range_str, limit, filter_state)
-        # Mock 3 threads
-        # Expected: list of thread dicts
-        pass  # Placeholder until implementation
+        t1 = Mock()
+        t1.num = 1
+        t1.ptid = (1, 1, 0)
+        t1.name = "Thread 1"
+        t1.is_running.return_value = False
+        t1.is_stopped.return_value = True
 
-    @patch("gdb.selected_inferior")
-    def test_threads_with_limit(self, mock_inferior):
-        """Test threads with limit parameter."""
-        # Input: limit=5, 10 threads exist
-        # Expected: 5 threads, truncated=true, total_count=10
-        pass  # Placeholder until implementation
+        mock_inferior = Mock()
+        mock_inferior.threads.return_value = [t1]
+        sys.modules['gdb'].selected_inferior = Mock(return_value=mock_inferior)
 
-    @patch("gdb.selected_inferior")
-    def test_threads_with_range(self, mock_inferior):
-        """Test threads with range filter."""
-        # Input: range_str="5-10"
-        # Expected: threads 5 through 10 only
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_inferior")
-    def test_threads_with_state_filter(self, mock_inferior):
-        """Test threads with state filter."""
-        # Input: filter_state="running"
-        # Expected: only running threads
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_inferior")
-    def test_threads_empty(self, mock_inferior):
-        """Test threads when no threads exist."""
-        # Edge case: no inferior or no threads
-        # Expected: empty list, total_count=0
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_inferior")
-    def test_threads_include_frame_info(self, mock_inferior):
-        """Test threads include current frame info."""
-        # Each thread should include current frame (function, file, line)
-        pass  # Placeholder until implementation
-
-    def test_threads_range_parsing(self):
-        """Test range string parsing."""
-        # "5-10" -> (5, 10)
-        # "10" -> (10, 10)
-        # "5-" -> (5, None)
-        # "-10" -> (None, 10)
-        pass  # Placeholder until implementation
-
-    def test_threads_invalid_range(self):
-        """Test invalid range string handling."""
-        # Input: "invalid", "5-3" (start > end)
-        # Expected: error or clamped range
-        pass  # Placeholder until implementation
-
-
-class TestHandleBacktrace(unittest.TestCase):
-    """Test backtrace handler."""
-
-    @patch("gdb.selected_thread")
-    def test_backtrace_basic(self, mock_thread):
-        """Test basic backtrace."""
-        # Spec §4.2: handle_backtrace(thread_id, limit, full)
-        # Mock 5 frames
-        # Expected: list of frame dicts
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_thread")
-    def test_backtrace_with_limit(self, mock_thread):
-        """Test backtrace with limit."""
-        # Input: limit=10, 20 frames exist
-        # Expected: 10 frames, truncated=true
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_thread")
-    @patch("gdb.Thread")
-    def test_backtrace_specific_thread(self, mock_thread_class, mock_selected):
-        """Test backtrace for specific thread."""
-        # Input: thread_id=5
-        # Expected: switch to thread 5, get its backtrace
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_thread")
-    def test_backtrace_full(self, mock_thread):
-        """Test backtrace with full=True."""
-        # Input: full=True
-        # Expected: include local variables in each frame
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_thread")
-    def test_backtrace_empty(self, mock_thread):
-        """Test backtrace when no frames."""
-        # No selected thread or empty stack
-        # Expected: empty list or error
-        pass  # Placeholder until implementation
-
-    def test_backtrace_frame_format(self):
-        """Test backtrace frame output format."""
-        # Each frame should have:
-        # - level
-        # - function
-        # - file (if available)
-        # - line (if available)
-        # - locals (if full=True)
-        pass  # Placeholder until implementation
-
-
-class TestHandleFrameSelect(unittest.TestCase):
-    """Test frame selection handler."""
-
-    @patch("gdb.selected_thread")
-    def test_frame_select_valid(self, mock_thread):
-        """Test frame selection with valid frame number."""
-        # Spec §4.2: handle_frame_select(number)
-        # Input: number=2
-        # Expected: switch to frame 2, return new frame info
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_thread")
-    def test_frame_select_invalid(self, mock_thread):
-        """Test frame selection with invalid frame number."""
-        # Input: number=999 (beyond stack depth)
-        # Expected: error response
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_thread")
-    def test_frame_select_negative(self, mock_thread):
-        """Test frame selection with negative number."""
-        # Input: number=-1
-        # Expected: error or wrap to last frame
-        pass  # Placeholder until implementation
-
-
-class TestHandleLocals(unittest.TestCase):
-    """Test locals variable handler."""
-
-    @patch("gdb.selected_frame")
-    def test_locals_basic(self, mock_frame):
-        """Test basic locals listing."""
-        # Spec §4.2: handle_locals(thread_id, frame)
-        # Expected: dict of local variable names and values
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_frame")
-    def test_locals_with_frame_offset(self, mock_frame):
-        """Test locals with frame offset."""
-        # Input: frame=2 (up 2 frames)
-        # Expected: locals from frame 2
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_frame")
-    def test_locals_with_thread(self, mock_frame):
-        """Test locals with specific thread."""
-        # Input: thread_id=5
-        # Expected: switch to thread 5, get locals from current frame
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_frame")
-    def test_locals_no_block(self, mock_frame):
-        """Test locals when frame has no block info."""
-        # Some frames may not have block() information
-        # Expected: empty dict or error
-        pass  # Placeholder until implementation
-
-
-class TestHandleExec(unittest.TestCase):
-    """Test raw command execution handler."""
-
-    @patch("gdb.execute")
-    def test_exec_allowed_command(self, mock_execute):
-        """Test exec with allowed command."""
-        # Spec §4.2: handle_exec(command, safety_level)
-        # Input: command="bt", safety_level="readonly"
-        # Expected: execute and return output
-        pass  # Placeholder until implementation
-
-    @patch("gdb.execute")
-    def test_exec_blocked_command(self, mock_execute):
-        """Test exec with blocked command."""
-        # Input: command="set variable x=1", safety_level="readonly"
-        # Expected: error, command not executed
-        pass  # Placeholder until implementation
-
-    @patch("gdb.execute")
-    def test_exec_with_output(self, mock_execute):
-        """Test exec returns command output."""
-        # mock_execute returns "#0 main () at foo.c:10\n..."
-        # Expected: parsed output in structured format
-        pass  # Placeholder until implementation
-
-    @patch("gdb.execute")
-    def test_exec_error_response(self, mock_execute):
-        """Test exec handles GDB error."""
-        # gdb.execute raises gdb.error
-        # Expected: {"ok": False, "error": "..."}
-        pass  # Placeholder until implementation
+        result = self.handlers.handle_threads()
+        self.assertIn("threads", result)
+        self.assertGreaterEqual(len(result["threads"]), 1)
 
 
 class TestHandleStatus(unittest.TestCase):
     """Test session status handler."""
 
-    def test_status_core_mode(self):
-        """Test status for core dump mode."""
-        # Spec §4.2: handle_status()
-        # Session: mode="core", binary="./my_program", core="./core.1234"
-        # Expected: mode, binary, core, thread count, etc.
-        pass  # Placeholder until implementation
+    def setUp(self):
+        import importlib
+        import gdb_cli.gdb_server.handlers as handlers_mod
+        importlib.reload(handlers_mod)
+        self.handlers = handlers_mod
 
-    def test_status_attach_mode(self):
-        """Test status for attach mode."""
-        # Session: mode="attach", pid=1234
-        # Expected: mode, pid, binary, thread count, etc.
-        pass  # Placeholder until implementation
-
-    @patch("gdb.selected_inferior")
-    def test_status_thread_count(self, mock_inferior):
-        """Test status includes thread count."""
-        # Should return number of threads in inferior
-        pass  # Placeholder until implementation
-
-    def test_status_no_session(self):
-        """Test status when no session active."""
-        # No inferior loaded
-        # Expected: error or empty status
-        pass  # Placeholder until implementation
-
-
-class TestHandlerResponseFormat(unittest.TestCase):
-    """Test handler response format compliance."""
-
-    def test_response_has_ok_field(self):
-        """Test all responses have 'ok' boolean field."""
-        # Spec §2.6: {"ok": True/False, ...}
-        pass  # Placeholder until implementation
-
-    def test_success_response_has_data(self):
-        """Test successful response has 'data' field."""
-        # {"ok": True, "data": {...}}
-        pass  # Placeholder until implementation
-
-    def test_error_response_has_error_message(self):
-        """Test error response has 'error' string field."""
-        # {"ok": False, "error": "message"}
-        pass  # Placeholder until implementation
-
-    def test_truncated_response_has_hint(self):
-        """Test truncated response has hint field."""
-        # {"ok": True, "data": {...}, "truncated": true, "hint": "..."}
-        pass  # Placeholder until implementation
-
-
-class TestHandlerEdgeCases(unittest.TestCase):
-    """Edge case tests for handlers."""
-
-    def test_eval_empty_expression(self):
-        """Test eval with empty expression."""
-        # Input: expr=""
-        # Expected: error
-        pass  # Placeholder until implementation
-
-    def test_eval_very_long_expression(self):
-        """Test eval with very long expression."""
-        # Input: expr="a" * 10000
-        # Expected: either success or size limit error
-        pass  # Placeholder until implementation
-
-    def test_threads_limit_zero(self):
-        """Test threads with limit=0."""
-        # Input: limit=0
-        # Expected: empty list or error
-        pass  # Placeholder until implementation
-
-    def test_backtrace_limit_zero(self):
-        """Test backtrace with limit=0."""
-        # Input: limit=0
-        # Expected: empty list or error
-        pass  # Placeholder until implementation
-
-    def test_exec_empty_command(self):
-        """Test exec with empty command."""
-        # Input: command=""
-        # Expected: error
-        pass  # Placeholder until implementation
+    def test_status_returns_session_meta(self):
+        """Test status returns session metadata."""
+        session_meta = {"mode": "core", "binary": "./myapp", "core": "./core.1234"}
+        result = self.handlers.handle_status(_session_meta=session_meta)
+        self.assertIn("mode", result)
+        self.assertEqual(result["mode"], "core")
 
 
 if __name__ == "__main__":

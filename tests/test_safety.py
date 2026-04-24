@@ -1,321 +1,255 @@
 """Tests for safety module.
 
 Tests safety.py: 命令白名单 + 安全过滤
-- 白名单命令通过
-- 危险命令拦截（set variable, call, signal）
-- attach 模式下的安全等级验证
-
-Based on Spec §2.7, §4.3 Phase 2:
-    Safety levels:
-    - "readonly": 只允许读取类命令
-    - "readwrite": 允许 set variable
-    - "full": 允许 call（需 --allow-call + 超时）
-
-    Forbidden commands (attach mode):
-    - signal (always forbidden)
+- 所有 FORBIDDEN_COMMANDS 被拦截（包括 python）
+- SafetyLevel.READONLY/READWRITE/FULL 行为正确
+- SafetyFilter.check_command() 返回正确的分类和原因
 """
 
 import unittest
 
-# Import will be available after developer implements safety.py
-# from gdb_cli.safety import (
-#     SafetyFilter,
-#     CommandCategory,
-#     SafetyLevel,
-#     is_command_allowed,
-#     classify_command,
-#     DANGEROUS_COMMANDS,
-#     READONLY_COMMANDS,
-# )
+from gdb_cli.safety import (
+    FORBIDDEN_COMMANDS,
+    SafetyFilter,
+    SafetyLevel,
+    classify_command,
+    is_command_allowed,
+)
 
 
-class TestCommandClassification(unittest.TestCase):
-    """Test command classification into categories."""
+class TestForbiddenCommands(unittest.TestCase):
+    """Test that all forbidden commands are blocked."""
 
-    def test_classify_read_commands(self):
-        """Test classification of read-only commands."""
-        # Spec §2.7: 读取类命令
-        # bt, info threads, print, x, ptype, info locals
-        commands = [
-            ("bt", "readonly"),
-            ("backtrace", "readonly"),
-            ("info threads", "readonly"),
-            ("thread", "readonly"),
-            ("print", "readonly"),
-            ("p", "readonly"),
-            ("x", "readonly"),
-            ("ptype", "readonly"),
-            ("info locals", "readonly"),
-            ("info args", "readonly"),
-            ("frame", "readonly"),
-            ("up", "readonly"),
-            ("down", "readonly"),
-        ]
-        # for cmd, expected in commands:
-        #     assert classify_command(cmd) == expected
-        pass  # Placeholder until implementation
+    def test_all_forbidden_commands_blocked(self):
+        """Every FORBIDDEN_COMMAND is blocked at all safety levels."""
+        for cmd in sorted(FORBIDDEN_COMMANDS):
+            for level in ("readonly", "readwrite", "full"):
+                with self.subTest(command=cmd, level=level):
+                    self.assertFalse(
+                        is_command_allowed(cmd, level),
+                        f"Command '{cmd}' should be blocked at level '{level}'"
+                    )
 
-    def test_classify_write_commands(self):
-        """Test classification of write commands."""
-        # Spec §2.7: 内存修改类
-        # set variable, set var
-        commands = [
-            ("set variable", "write"),
-            ("set var", "write"),
-        ]
-        pass  # Placeholder until implementation
+    def test_python_command_blocked(self):
+        """python command must be in FORBIDDEN_COMMANDS (Issue #1 fix)."""
+        self.assertIn("python", FORBIDDEN_COMMANDS)
 
-    def test_classify_call_commands(self):
-        """Test classification of function call commands."""
-        # Spec §2.7: 函数调用类
-        # call
-        commands = [
-            ("call", "call"),
-        ]
-        pass  # Placeholder until implementation
+    def test_python_variations_blocked(self):
+        """python with arguments is also blocked."""
+        sf = SafetyFilter(SafetyLevel.FULL)
+        for cmd in ("python import os", "python os.system('id')", "python\nprint(1)"):
+            allowed, reason = sf.filter_command(cmd)
+            self.assertFalse(allowed, f"'{cmd}' should be blocked, got reason={reason}")
 
-    def test_classify_signal_commands(self):
-        """Test classification of signal commands (always forbidden)."""
-        # Spec §2.7: signal 命令始终禁止
-        commands = [
-            ("signal", "forbidden"),
-            ("signal SIGCONT", "forbidden"),
-        ]
-        pass  # Placeholder until implementation
+    def test_shell_blocked(self):
+        """shell command is blocked."""
+        sf = SafetyFilter(SafetyLevel.FULL)
+        allowed, _ = sf.filter_command("shell")
+        self.assertFalse(allowed)
 
-    def test_classify_execution_control(self):
-        """Test classification of execution control commands."""
-        # Spec §2.7: continue, step, next, finish (需确认)
-        commands = [
-            ("continue", "execution"),
-            ("c", "execution"),
-            ("step", "execution"),
-            ("s", "execution"),
-            ("next", "execution"),
-            ("n", "execution"),
-            ("finish", "execution"),
-        ]
-        pass  # Placeholder until implementation
+    def test_quit_blocked(self):
+        """quit command is blocked."""
+        sf = SafetyFilter(SafetyLevel.FULL)
+        allowed, _ = sf.filter_command("quit")
+        self.assertFalse(allowed)
 
-    def test_classify_unknown_command(self):
-        """Test classification of unknown commands."""
-        # Unknown commands should default to forbidden or require explicit allow
-        pass  # Placeholder until implementation
+    def test_attach_detach_blocked(self):
+        """attach and detach are blocked."""
+        sf = SafetyFilter(SafetyLevel.FULL)
+        for cmd in ("attach 12345", "detach", "target extended-remote :3333"):
+            allowed, _ = sf.filter_command(cmd)
+            self.assertFalse(allowed, f"'{cmd}' should be blocked")
+
+    def test_signal_blocked(self):
+        """signal is blocked at all levels."""
+        for cmd in ("signal", "signal SIGCONT", "signal 9"):
+            for level in SafetyLevel:
+                sf = SafetyFilter(level)
+                allowed, _ = sf.filter_command(cmd)
+                self.assertFalse(
+                    allowed, f"'{cmd}' should be blocked at {level}"
+                )
 
 
 class TestReadonlySafetyLevel(unittest.TestCase):
-    """Test safety level 'readonly' restrictions."""
+    """Test SafetyLevel.READONLY restrictions."""
 
-    def test_readonly_allows_read_commands(self):
-        """Test readonly level allows read commands."""
-        # Spec §2.7: 读取类命令无限制
-        commands = ["bt", "info threads", "print foo"]
-        # for cmd in commands:
-        #     assert is_command_allowed(cmd, "readonly") is True
-        pass  # Placeholder until implementation
+    def setUp(self):
+        self.sf = SafetyFilter(SafetyLevel.READONLY)
 
-    def test_readonly_blocks_write_commands(self):
-        """Test readonly level blocks write commands."""
-        # Spec §2.7: set variable 默认禁止
-        commands = ["set variable x=1", "set var y=2"]
-        # for cmd in commands:
-        #     assert is_command_allowed(cmd, "readonly") is False
-        pass  # Placeholder until implementation
+    def test_allows_read_commands(self):
+        for cmd in ("bt", "backtrace", "info threads", "print foo",
+                     "p x", "x", "ptype my_struct",
+                     "frame", "up", "down", "disassemble main",
+                     "info locals", "info args", "thread 1"):
+            allowed, reason = self.sf.filter_command(cmd)
+            self.assertTrue(allowed, f"'{cmd}' should be allowed, got: {reason}")
 
-    def test_readonly_blocks_call_commands(self):
-        """Test readonly level blocks call commands."""
-        # Spec §2.7: call 默认禁止
-        commands = ["call foo()", "call bar(1, 2)"]
-        # for cmd in commands:
-        #     assert is_command_allowed(cmd, "readonly") is False
-        pass  # Placeholder until implementation
+    def test_blocks_write_commands(self):
+        for cmd in ("set variable x=1", "set var y=2", "assign z=3"):
+            allowed, reason = self.sf.filter_command(cmd)
+            self.assertFalse(allowed, f"'{cmd}' should be blocked")
 
-    def test_readonly_blocks_signal_commands(self):
-        """Test readonly level blocks signal commands."""
-        # Spec §2.7: signal 始终禁止
-        commands = ["signal", "signal SIGKILL"]
-        # for cmd in commands:
-        #     assert is_command_allowed(cmd, "readonly") is False
-        pass  # Placeholder until implementation
+    def test_blocks_call_commands(self):
+        for cmd in ("call foo()", "call malloc(100)"):
+            allowed, reason = self.sf.filter_command(cmd)
+            self.assertFalse(allowed, f"'{cmd}' should be blocked")
+
+    def test_allows_execution_control_with_confirmation(self):
+        for cmd in ("continue", "c", "step", "s", "next", "n", "finish"):
+            result = self.sf.check_command(cmd)
+            self.assertTrue(result.allowed, f"'{cmd}' should be allowed")
+            self.assertTrue(result.requires_confirmation, f"'{cmd}' should require confirmation")
+
+    def test_blocks_unknown_commands(self):
+        allowed, reason = self.sf.filter_command("some_unknown_command_xyz")
+        self.assertFalse(allowed)
 
 
 class TestReadwriteSafetyLevel(unittest.TestCase):
-    """Test safety level 'readwrite' restrictions."""
+    """Test SafetyLevel.READWRITE restrictions."""
 
-    def test_readwrite_allows_read_commands(self):
-        """Test readwrite level allows read commands."""
-        # Read commands should always be allowed
-        pass  # Placeholder until implementation
+    def setUp(self):
+        self.sf = SafetyFilter(SafetyLevel.READWRITE)
 
-    def test_readwrite_allows_write_commands(self):
-        """Test readwrite level allows write commands."""
-        # Spec §2.7: readwrite level allows set variable
-        commands = ["set variable x=1", "set var y=2"]
-        # for cmd in commands:
-        #     assert is_command_allowed(cmd, "readwrite") is True
-        pass  # Placeholder until implementation
+    def test_allows_read_commands(self):
+        for cmd in ("bt", "info threads", "print foo", "disassemble main"):
+            allowed, _ = self.sf.filter_command(cmd)
+            self.assertTrue(allowed)
 
-    def test_readwrite_blocks_call_commands(self):
-        """Test readwrite level still blocks call commands."""
-        # Spec §2.7: call 需要 full level
-        commands = ["call foo()", "call malloc(100)"]
-        # for cmd in commands:
-        #     assert is_command_allowed(cmd, "readwrite") is False
-        pass  # Placeholder until implementation
+    def test_allows_write_commands(self):
+        for cmd in ("set variable x=1", "set var y=2", "assign z=3"):
+            allowed, reason = self.sf.filter_command(cmd)
+            self.assertTrue(allowed, f"'{cmd}' should be allowed, got: {reason}")
 
-    def test_readwrite_blocks_signal_commands(self):
-        """Test readwrite level blocks signal commands."""
-        # Spec §2.7: signal 始终禁止
-        pass  # Placeholder until implementation
+    def test_blocks_call_commands(self):
+        for cmd in ("call foo()", "call danger()"):
+            allowed, _ = self.sf.filter_command(cmd)
+            self.assertFalse(allowed, f"'{cmd}' should be blocked")
 
 
 class TestFullSafetyLevel(unittest.TestCase):
-    """Test safety level 'full' restrictions."""
+    """Test SafetyLevel.FULL restrictions."""
 
-    def test_full_allows_all_except_signal(self):
-        """Test full level allows read, write, and call."""
-        # Spec §2.7: full level + --allow-call 允许 call
-        commands = [
-            ("bt", True),
-            ("set variable x=1", True),
-            ("call foo()", True),
-        ]
-        pass  # Placeholder until implementation
+    def setUp(self):
+        self.sf = SafetyFilter(SafetyLevel.FULL)
 
-    def test_full_still_blocks_signal(self):
-        """Test full level still blocks signal commands."""
-        # Spec §2.7: signal 始终禁止
-        commands = ["signal", "signal SIGCONT", "signal 9"]
-        # for cmd in commands:
-        #     assert is_command_allowed(cmd, "full") is False
-        pass  # Placeholder until implementation
+    def test_allows_read_write_call(self):
+        for cmd in ("bt", "set variable x=1", "call foo()"):
+            allowed, reason = self.sf.filter_command(cmd)
+            self.assertTrue(allowed, f"'{cmd}' should be allowed, got: {reason}")
+
+    def test_call_requires_confirmation(self):
+        result = self.sf.check_command("call foo()")
+        self.assertTrue(result.allowed)
+        self.assertTrue(result.requires_confirmation)
+
+    def test_still_blocks_forbidden(self):
+        for cmd in ("quit", "kill", "shell", "python-interactive", "signal"):
+            allowed, _ = self.sf.filter_command(cmd)
+            self.assertFalse(allowed, f"'{cmd}' should be blocked even at FULL")
+
+    def test_unknown_commands_allowed_at_full(self):
+        allowed, _ = self.sf.filter_command("my_custom_alias_command")
+        self.assertTrue(allowed)
 
 
 class TestCommandParsing(unittest.TestCase):
     """Test command parsing and normalization."""
 
-    def test_normalize_command(self):
-        """Test command normalization (aliases, whitespace)."""
-        # Test: "bt" == "backtrace"
-        # Test: "p" == "print"
-        # Test: whitespace trimming
-        pass  # Placeholder until implementation
-
     def test_extract_command_verb(self):
-        """Test extraction of command verb from full command."""
-        # "print foo" -> "print"
-        # "set variable x=1" -> "set"
-        pass  # Placeholder until implementation
+        sf = SafetyFilter(SafetyLevel.READONLY)
+        self.assertEqual(sf._extract_command_verb("print foo"), "print")
+        self.assertEqual(sf._extract_command_verb("set variable x=1"), "set")
+        self.assertEqual(sf._extract_command_verb("  bt  "), "bt")
 
-    def test_handle_command_abbreviations(self):
-        """Test handling of GDB command abbreviations."""
-        # GDB allows: p -> print, b -> break, etc.
-        # Test: "p foo" should be treated as "print foo"
-        pass  # Placeholder until implementation
+    def test_empty_command(self):
+        sf = SafetyFilter(SafetyLevel.READONLY)
+        result = sf.check_command("")
+        self.assertFalse(result.allowed)  # Empty string is not a valid command
 
-    def test_handle_command_arguments(self):
-        """Test command parsing with arguments."""
-        # "print/x foo" should be parsed same as "print foo"
-        # "call foo(bar)" should detect "call"
-        pass  # Placeholder until implementation
+    def test_whitespace_command(self):
+        sf = SafetyFilter(SafetyLevel.READONLY)
+        result = sf.check_command("   ")
+        self.assertFalse(result.allowed)  # Whitespace-only is not a valid command
 
 
-class TestSafetyFilterClass(unittest.TestCase):
+class TestConvenienceFunctions(unittest.TestCase):
+    """Test module-level convenience functions."""
+
+    def test_is_command_allowed_readonly(self):
+        self.assertTrue(is_command_allowed("bt", "readonly"))
+        self.assertFalse(is_command_allowed("set variable x=1", "readonly"))
+        self.assertFalse(is_command_allowed("signal 9", "readonly"))
+
+    def test_is_command_allowed_invalid_level(self):
+        # Invalid level falls back to READONLY
+        self.assertTrue(is_command_allowed("bt", "bogus_level"))
+        self.assertFalse(is_command_allowed("set variable x=1", "bogus_level"))
+
+    def test_classify_command(self):
+        self.assertEqual(classify_command("bt"), "readonly")
+        self.assertEqual(classify_command("set variable x=1"), "write")
+        self.assertEqual(classify_command("call foo()"), "call")
+        self.assertEqual(classify_command("signal 9"), "forbidden")
+        self.assertEqual(classify_command("continue"), "execution")
+
+
+class TestSafetyFilterInterface(unittest.TestCase):
     """Test SafetyFilter class interface."""
 
     def test_filter_init(self):
-        """Test SafetyFilter initialization."""
-        # filter = SafetyFilter(level="readonly")
-        # assert filter.level == "readonly"
-        pass  # Placeholder until implementation
+        sf = SafetyFilter(SafetyLevel.READONLY)
+        self.assertEqual(sf.level, SafetyLevel.READONLY)
 
-    def test_filter_check_command(self):
-        """Test SafetyFilter.check_command method."""
-        # filter = SafetyFilter(level="readonly")
-        # result = filter.check("bt")
-        # assert result.allowed is True
-        pass  # Placeholder until implementation
+    def test_filter_check_returns_result(self):
+        sf = SafetyFilter(SafetyLevel.READONLY)
+        result = sf.check_command("bt")
+        self.assertTrue(result.allowed)
+        self.assertEqual(result.category, "readonly")
+        self.assertFalse(result.requires_confirmation)
 
-    def test_filter_check_returns_reason(self):
-        """Test check returns reason when blocked."""
-        # result = filter.check("set variable x=1")
-        # assert result.allowed is False
-        # assert "readonly" in result.reason
-        pass  # Placeholder until implementation
+    def test_filter_check_returns_reason_when_blocked(self):
+        sf = SafetyFilter(SafetyLevel.READONLY)
+        result = sf.check_command("set variable x=1")
+        self.assertFalse(result.allowed)
+        self.assertIsNotNone(result.reason)
+        self.assertIn("requires", result.reason.lower())
 
-    def test_filter_check_returns_category(self):
-        """Test check returns command category."""
-        # result = filter.check("bt")
-        # assert result.category == "readonly"
-        pass  # Placeholder until implementation
+    def test_filter_command_returns_tuple(self):
+        sf = SafetyFilter(SafetyLevel.READONLY)
+        allowed, reason = sf.filter_command("bt")
+        self.assertTrue(allowed)
+        self.assertIsNone(reason)
 
-
-class TestDangerousCommands(unittest.TestCase):
-    """Test dangerous command detection."""
-
-    def test_dangerous_commands_list(self):
-        """Test DANGEROUS_COMMANDS constant contains expected commands."""
-        # Expected: set variable, call, signal
-        dangerous = ["set variable", "call", "signal"]
-        # for cmd in dangerous:
-        #     assert cmd in DANGEROUS_COMMANDS
-        pass  # Placeholder until implementation
-
-    def test_subcommand_variations(self):
-        """Test detection of command sub-variations."""
-        # "set var" vs "set variable"
-        # "call" vs "call-external" (if exists)
-        pass  # Placeholder until implementation
-
-
-class TestExecutionControlCommands(unittest.TestCase):
-    """Test execution control command handling."""
-
-    def test_continue_requires_confirmation(self):
-        """Test continue requires explicit confirmation."""
-        # Spec §2.7: continue 需确认（可配置）
-        # Test: is_command_allowed("continue", "readonly", confirm=True)
-        pass  # Placeholder until implementation
-
-    def test_step_requires_confirmation(self):
-        """Test step requires explicit confirmation."""
-        # Spec §2.7: step 需确认
-        pass  # Placeholder until implementation
-
-    def test_next_requires_confirmation(self):
-        """Test next requires explicit confirmation."""
-        # Spec §2.7: next 需确认
-        pass  # Placeholder until implementation
+        allowed, reason = sf.filter_command("signal 9")
+        self.assertFalse(allowed)
+        self.assertIsNotNone(reason)
 
 
 class TestSafetyEdgeCases(unittest.TestCase):
     """Edge case tests for safety module."""
 
-    def test_empty_command(self):
-        """Test handling of empty command."""
-        # is_command_allowed("", "readonly") should return False or raise
-        pass  # Placeholder until implementation
-
-    def test_whitespace_only_command(self):
-        """Test handling of whitespace-only command."""
-        # is_command_allowed("   ", "readonly") handling
-        pass  # Placeholder until implementation
-
-    def test_case_sensitivity(self):
-        """Test command case sensitivity."""
-        # GDB commands are case-insensitive
-        # "BT" should be same as "bt"
-        pass  # Placeholder until implementation
+    def test_case_insensitive(self):
+        """GDB commands are case-insensitive."""
+        sf = SafetyFilter(SafetyLevel.READONLY)
+        for cmd in ("BT", "Bt", "Backtrace"):
+            allowed, _ = sf.filter_command(cmd)
+            self.assertTrue(allowed, f"'{cmd}' should be allowed")
 
     def test_command_with_special_chars(self):
-        """Test commands with special characters."""
-        # "print \"hello\"", "x/10gx foo"
-        pass  # Placeholder until implementation
+        sf = SafetyFilter(SafetyLevel.FULL)
+        allowed, _ = sf.filter_command('print "hello world"')
+        self.assertTrue(allowed)
 
-    def test_invalid_safety_level(self):
-        """Test handling of invalid safety level."""
-        # is_command_allowed("bt", "invalid_level") should raise ValueError
-        pass  # Placeholder until implementation
+    def test_readonly_commands_list_content(self):
+        from gdb_cli.safety import READONLY_COMMANDS
+        expected = {"bt", "backtrace", "info", "thread", "threads",
+                     "print", "p", "x", "ptype", "whatis",
+                     "frame", "up", "down", "select-frame",
+                     "list", "disassemble", "source",
+                     "show", "help", "pwd", "directory"}
+        self.assertEqual(READONLY_COMMANDS, expected)
 
 
 if __name__ == "__main__":

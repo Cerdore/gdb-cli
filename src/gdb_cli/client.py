@@ -218,9 +218,9 @@ class GDBClient:
             params["thread_id"] = thread_id
         return self.call("locals", **params)
 
-    def exec_cmd(self, command: str, safety_level: str = "readonly") -> dict:
+    def exec_cmd(self, command: str) -> dict:
         """执行 GDB 命令"""
-        return self.call("exec", command=command, safety_level=safety_level)
+        return self.call("exec", command=command)
 
     def status(self) -> dict:
         """获取状态"""

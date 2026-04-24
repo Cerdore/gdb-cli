@@ -24,6 +24,7 @@ from . import __version__
 from .client import GDBClient, GDBClientError, GDBCommandError
 from .i18n import t
 from .launcher import GDBLauncherError, launch_attach, launch_core, launch_target
+from .signal_handlers import setup_signal_handlers
 from .session import (
     cleanup_dead_sessions,
     find_session_by_core,
@@ -63,6 +64,7 @@ def get_client(session_id: str) -> GDBClient:
 @click.version_option(version=__version__)
 def main() -> None:
     """GDB CLI for AI - Thin client CLI + GDB built-in Python RPC Server"""
+    setup_signal_handlers()
     pass
 
 
@@ -345,12 +347,11 @@ def locals_cmd(session: str, thread_id: Optional[int], frame: int) -> None:
 @main.command("exec")
 @click.option("--session", "-s", required=True, help=t("cli.exec.session_help"))
 @click.argument("command")
-@click.option("--safety-level", default="readonly", help=t("cli.exec.safety_level_help"))
-def exec_cmd(session: str, command: str, safety_level: str) -> None:
+def exec_cmd(session: str, command: str) -> None:
     """Execute raw GDB command"""
     try:
         with get_client(session) as client:
-            result = client.exec_cmd(command, safety_level=safety_level)
+            result = client.exec_cmd(command)
             print_json(result)
     except GDBCommandError as e:
         print_error(str(e), command)

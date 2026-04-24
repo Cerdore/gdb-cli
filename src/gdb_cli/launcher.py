@@ -326,6 +326,15 @@ def _build_server_commands(session: SessionMeta) -> List[str]:
     ]
 
 
+def _cleanup_fifo_if_exists(fifo_path):
+    """安全清理 FIFO 文件"""
+    if fifo_path is not None and fifo_path.exists():
+        try:
+            fifo_path.unlink()
+        except Exception:
+            pass
+
+
 def _start_gdb_process(
     gdb_args: List[str],
     session: SessionMeta,
@@ -369,20 +378,32 @@ def _start_gdb_process(
         session._gdb_process = process
 
         # 等待 socket 文件创建
-        _wait_for_socket(Path(session.sock_path), timeout=timeout)
+        _wait_for_socket(Path(session.sock_path), timeout=timeout, process=process)
 
         return process
 
     except FileNotFoundError:
+        _cleanup_fifo_if_exists(fifo_path)
         raise GDBLauncherError(f"GDB not found: {gdb_args[0]}")
     except Exception as e:
+        _cleanup_fifo_if_exists(fifo_path)
+        if 'fifo_fd' in locals():
+            try:
+                os.close(fifo_fd)
+            except Exception:
+                pass
         raise GDBLauncherError(f"Failed to start GDB: {e}")
 
 
-def _wait_for_socket(sock_path: Path, timeout: float = 30.0) -> None:
-    """等待 socket 文件创建"""
+def _wait_for_socket(sock_path: Path, timeout: float = 30.0,
+                      process: Optional[subprocess.Popen] = None) -> None:
+    """等待 socket 文件创建，同时检查 GDB 进程是否崩溃"""
     start_time = time.time()
     while time.time() - start_time < timeout:
+        if process is not None and process.poll() is not None:
+            raise GDBLauncherError(
+                f"GDB exited prematurely with code {process.returncode}"
+            )
         if sock_path.exists():
             return
         time.sleep(0.1)

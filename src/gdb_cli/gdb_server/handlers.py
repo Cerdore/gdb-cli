@@ -32,6 +32,18 @@ format_value_for_display = _value_formatter.format_value_for_display
 DEFAULT_MAX_DEPTH = _value_formatter.DEFAULT_MAX_DEPTH
 DEFAULT_MAX_ELEMENTS = _value_formatter.DEFAULT_MAX_ELEMENTS
 
+# 动态加载 safety（避免相对导入问题）
+_safety_path = Path(_server_dir).parent / "safety.py"
+if _safety_path.exists():
+    _safety_spec = importlib.util.spec_from_file_location("safety", _safety_path)
+    _safety = importlib.util.module_from_spec(_safety_spec)
+    _safety_spec.loader.exec_module(_safety)
+    SafetyFilter = _safety.SafetyFilter
+    SafetyLevel = _safety.SafetyLevel
+    SAFETY_AVAILABLE = True
+else:
+    SAFETY_AVAILABLE = False
+
 
 def handle_eval(
     expr: str,
@@ -552,24 +564,16 @@ def handle_exec(
     if not GDB_AVAILABLE:
         return {"error": "GDB not available"}
 
-    # 安全检查 (详细实现在 safety.py)
-    # 这里先做基本检查
-    dangerous_commands = ["quit", "kill", "shell", "python-interactive"]
-    cmd_lower = command.lower().strip()
-
-    for dangerous in dangerous_commands:
-        if cmd_lower.startswith(dangerous):
-            return {"error": f"Command '{dangerous}' is not allowed", "command": command}
-
-    # 写操作检查
-    write_commands = ["set", "call", "return"]
-    if safety_level == "readonly":
-        for write_cmd in write_commands:
-            if cmd_lower.startswith(write_cmd):
-                return {
-                    "error": f"Command '{write_cmd}' requires --allow-write",
-                    "command": command
-                }
+    # 使用 SafetyFilter 进行安全检查
+    if SAFETY_AVAILABLE:
+        try:
+            level = SafetyLevel(safety_level)
+        except ValueError:
+            level = SafetyLevel.READONLY
+        sf = SafetyFilter(level)
+        allowed, reason = sf.filter_command(command)
+        if not allowed:
+            return {"error": reason or f"Command not allowed", "command": command}
 
     try:
 
@@ -776,6 +780,18 @@ def handle_thread_apply(
             target_threads = [t for t in all_threads_list if t.num in ids]
         else:
             return {"error": "Specify --all or --threads list"}
+
+        # 安全检查：使用 SafetyFilter 过滤命令
+        if SAFETY_AVAILABLE:
+            safety_level_str = kwargs.get("safety_level", "readonly")
+            try:
+                level = SafetyLevel(safety_level_str)
+            except ValueError:
+                level = SafetyLevel.READONLY
+            sf = SafetyFilter(level)
+            allowed, reason = sf.filter_command(command)
+            if not allowed:
+                return {"error": reason or f"Command not allowed", "command": command}
 
         results = []
         orig_thread = gdb.selected_thread()

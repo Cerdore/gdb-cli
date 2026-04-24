@@ -7,6 +7,7 @@ GDB RPC Server - 运行在 GDB Python 解释器内
 
 import json
 import os
+import queue
 import socket
 import threading
 import time
@@ -276,7 +277,30 @@ class GDBRPCServer:
         # 注入 session 元数据
         params["_session_meta"] = self.session_meta
 
-        return handler(**params)
+        # 强制使用 session 配置的安全级别，忽略客户端传入的值
+        params["safety_level"] = self.session_meta.get("safety_level", "readonly")
+
+        # 通过 gdb.post_event() 将所有 handler 调用路由到 GDB 主线程
+        result_queue: queue.Queue = queue.Queue()
+
+        def run_handler():
+            try:
+                result = handler(**params)
+                result_queue.put(("ok", result))
+            except Exception as e:
+                result_queue.put(("error", str(e)))
+
+        gdb.post_event(run_handler)
+
+        try:
+            status, result = result_queue.get(timeout=DEFAULT_COMMAND_TIMEOUT)
+        except queue.Empty:
+            raise RuntimeError(f"Command '{cmd}' timed out after {DEFAULT_COMMAND_TIMEOUT}s")
+
+        if status == "error":
+            raise RuntimeError(str(result))
+
+        return result
 
     def _start_heartbeat_timer(self) -> None:
         """启动心跳超时定时器"""
@@ -316,7 +340,12 @@ class GDBRPCServer:
                 gdb.execute("quit", to_string=True)
             except Exception as e:
                 gdb.write(f"[GDBRPCServer] Cleanup error: {e}\n")
-                # 强制退出
+                # 清理 socket 文件后强制退出
+                try:
+                    if self.sock_path.exists():
+                        self.sock_path.unlink()
+                except Exception:
+                    pass
                 import os
                 os._exit(0)
 

@@ -173,16 +173,25 @@ def list_sessions(alive_only: bool = True) -> List[SessionMeta]:
 
 
 def _is_session_alive(session: SessionMeta) -> bool:
-    """检查会话是否存活"""
+    """检查会话是否存活（包含 PID 复用检测）"""
     if session.gdb_pid is None:
         return False
 
     # 检查进程是否存在
     try:
         os.kill(session.gdb_pid, 0)
-        return True
     except OSError:
         return False
+
+    # 交叉验证进程名称，防止 PID 复用
+    try:
+        import psutil
+        proc = psutil.Process(session.gdb_pid)
+        return "gdb" in proc.name().lower()
+    except ImportError:
+        pass  # psutil 不可用，回退到仅检查 PID
+
+    return True
 
 
 def cleanup_session(session_id: str) -> bool:

@@ -69,6 +69,7 @@ class TestGDBRPCServerLoadingState(unittest.TestCase):
         gdb_mock.events.before_prompt = Mock()
         gdb_mock.events.before_prompt.connect = Mock()
         gdb_mock.write = Mock()
+        gdb_mock.post_event = lambda fn: fn()  # Execute immediately for testing
         sys.modules["gdb"] = gdb_mock
 
     def test_dispatch_blocks_non_status_while_loading(self):
