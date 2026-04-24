@@ -3,29 +3,23 @@
 Tests session.py: Session metadata CRUD, health checks, cleanup.
 """
 
-import os
 import tempfile
 import time
 import unittest
+
+# psutil is optional for PID reuse detection
+from importlib.util import find_spec
 from pathlib import Path
 from unittest.mock import patch
 
 from gdb_cli.session import (
     SessionMeta,
     _is_session_alive,
-    cleanup_dead_sessions,
     cleanup_session,
     create_session,
-    get_session,
-    list_sessions,
 )
 
-# psutil is optional for PID reuse detection
-try:
-    import psutil
-    HAS_PSUTIL = True
-except ImportError:
-    HAS_PSUTIL = False
+HAS_PSUTIL = find_spec("psutil") is not None
 
 
 class TestSessionMeta(unittest.TestCase):

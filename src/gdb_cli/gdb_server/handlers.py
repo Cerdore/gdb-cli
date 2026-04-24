@@ -573,7 +573,7 @@ def handle_exec(
         sf = SafetyFilter(level)
         allowed, reason = sf.filter_command(command)
         if not allowed:
-            return {"error": reason or f"Command not allowed", "command": command}
+            return {"error": reason or "Command not allowed", "command": command}
 
     try:
 
@@ -791,7 +791,7 @@ def handle_thread_apply(
             sf = SafetyFilter(level)
             allowed, reason = sf.filter_command(command)
             if not allowed:
-                return {"error": reason or f"Command not allowed", "command": command}
+                return {"error": reason or "Command not allowed", "command": command}
 
         results = []
         orig_thread = gdb.selected_thread()

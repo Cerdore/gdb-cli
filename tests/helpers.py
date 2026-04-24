@@ -2,14 +2,12 @@
 Test helpers for GDB-CLI tests.
 """
 
-import json
 import os
 import signal
 import subprocess
 import tempfile
 import time
 from pathlib import Path
-from typing import Optional
 
 # Default socket path for test sessions
 TEST_SOCK_DIR = Path(tempfile.mkdtemp(prefix="gdbcli_test_"))

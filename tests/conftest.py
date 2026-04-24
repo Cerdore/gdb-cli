@@ -4,7 +4,6 @@ pytest fixtures for GDB-CLI E2E tests.
 
 import os
 import subprocess
-import tempfile
 from pathlib import Path
 
 import pytest

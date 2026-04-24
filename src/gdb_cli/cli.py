@@ -24,7 +24,6 @@ from . import __version__
 from .client import GDBClient, GDBClientError, GDBCommandError
 from .i18n import t
 from .launcher import GDBLauncherError, launch_attach, launch_core, launch_target
-from .signal_handlers import setup_signal_handlers
 from .session import (
     cleanup_dead_sessions,
     find_session_by_core,
@@ -33,6 +32,7 @@ from .session import (
     get_session,
     list_sessions,
 )
+from .signal_handlers import setup_signal_handlers
 
 
 def print_json(data: dict) -> None:

@@ -7,7 +7,7 @@ import os
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, Mock
 
 # Mock gdb module before any imports that depend on it
 sys.modules['gdb'] = MagicMock()
@@ -22,6 +22,7 @@ class TestHandleExec(unittest.TestCase):
 
     def setUp(self):
         import importlib
+
         import gdb_cli.gdb_server.handlers as handlers_mod
         importlib.reload(handlers_mod)
         self.handlers = handlers_mod
@@ -101,6 +102,7 @@ class TestHandleThreadApply(unittest.TestCase):
 
     def setUp(self):
         import importlib
+
         import gdb_cli.gdb_server.handlers as handlers_mod
         importlib.reload(handlers_mod)
         self.handlers = handlers_mod
@@ -178,6 +180,7 @@ class TestHandleEval(unittest.TestCase):
 
     def setUp(self):
         import importlib
+
         import gdb_cli.gdb_server.handlers as handlers_mod
         importlib.reload(handlers_mod)
         self.handlers = handlers_mod
@@ -212,6 +215,7 @@ class TestHandleThreads(unittest.TestCase):
 
     def setUp(self):
         import importlib
+
         import gdb_cli.gdb_server.handlers as handlers_mod
         importlib.reload(handlers_mod)
         self.handlers = handlers_mod
@@ -239,6 +243,7 @@ class TestHandleStatus(unittest.TestCase):
 
     def setUp(self):
         import importlib
+
         import gdb_cli.gdb_server.handlers as handlers_mod
         importlib.reload(handlers_mod)
         self.handlers = handlers_mod

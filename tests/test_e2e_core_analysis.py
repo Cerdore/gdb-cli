@@ -18,8 +18,6 @@ import time
 import unittest
 from pathlib import Path
 
-import pytest
-
 from gdb_cli.client import GDBClient
 from gdb_cli.launcher import launch_core
 from gdb_cli.session import cleanup_session

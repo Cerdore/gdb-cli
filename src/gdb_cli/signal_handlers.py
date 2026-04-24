@@ -4,7 +4,6 @@ Signal Handlers - 集中式信号处理
 注册 SIGTERM/SIGINT 处理，确保 GDB 子进程在 CLI 被终止时得到清理。
 """
 
-import os
 import signal
 import sys
 from typing import Callable, List
