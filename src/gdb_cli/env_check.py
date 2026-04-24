@@ -50,7 +50,7 @@ class DebuginfoReport:
     suggestions: List[str] = field(default_factory=list)
 
 
-def check_environment() -> EnvironmentReport:
+def check_environment(gdb_path=None) -> EnvironmentReport:
     """
     执行完整的环境检查
 
@@ -63,7 +63,7 @@ def check_environment() -> EnvironmentReport:
     )
 
     # 检查 GDB
-    _check_gdb(report)
+    _check_gdb(report, gdb_path=gdb_path)
 
     # 检查 ptrace (Linux only)
     if platform.system() == "Linux":
@@ -79,9 +79,10 @@ def check_environment() -> EnvironmentReport:
     return report
 
 
-def _check_gdb(report: EnvironmentReport) -> None:
+def _check_gdb(report: EnvironmentReport, gdb_path=None) -> None:
     """检查 GDB 版本"""
-    gdb_path = shutil.which("gdb")
+    if gdb_path is None:
+        gdb_path = shutil.which("gdb")
 
     if not gdb_path:
         report.gdb_path = None
@@ -321,18 +322,19 @@ def suggest_solib_paths(binary_path: str, core_path: Optional[str] = None) -> Li
     return suggestions
 
 
-def get_env_check_cli_output() -> dict:
+def get_env_check_cli_output(gdb_path=None) -> dict:
     """
     获取环境检查的 CLI 输出
 
     Returns:
         JSON 格式的环境报告
     """
-    report = check_environment()
+    report = check_environment(gdb_path=gdb_path)
 
     result = {
         "python_version": report.python_version,
         "platform": report.platform,
+        "arch": platform.machine(),
         "gdb_path": report.gdb_path,
         "gdb_version": report.gdb_version,
         "gdb_supported": report.gdb_supported,

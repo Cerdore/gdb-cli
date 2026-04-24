@@ -330,7 +330,7 @@ def sessions() -> None:
                 "session_id": s.session_id,
                 "mode": s.mode,
                 "binary": s.binary,
-                "pid": s.pid,
+                "pid": s.gdb_pid,
                 "core": s.core,
                 "started_at": s.started_at,
             }
@@ -342,6 +342,19 @@ def sessions() -> None:
     print_json(result)
 
 
+def _format_elapsed(seconds: float) -> str:
+    total = max(0, int(seconds))
+    if total < 60:
+        return f"{total}s"
+    elif total < 3600:
+        m, s = divmod(total, 60)
+        return f"{m}m{s}s"
+    else:
+        h, remainder = divmod(total, 3600)
+        m = remainder // 60
+        return f"{h}h{m}m"
+
+
 @main.command()
 @click.option("--session", "-s", required=True, help=t("cli.status.session_help"))
 def status(session: str) -> None:
@@ -350,6 +363,8 @@ def status(session: str) -> None:
         with get_client(session) as client:
             result = client.status()
             result["session_id"] = session
+            if result.get("state") == "loading" and isinstance(result.get("elapsed"), (int, float)):
+                result["elapsed"] = _format_elapsed(result["elapsed"])
             print_json(result)
     except GDBClientError as e:
         meta = get_session(session)
@@ -360,11 +375,14 @@ def status(session: str) -> None:
         if meta.gdb_pid:
             try:
                 os.kill(meta.gdb_pid, 0)
-                print_json({
+                elapsed = time.time() - meta.started_at
+                result = {
                     "session_id": session,
                     "state": "loading",
                     "message": "GDB process alive, not yet responding"
-                })
+                }
+                result["elapsed"] = _format_elapsed(elapsed)
+                print_json(result)
                 return
             except OSError:
                 print_error("Session dead", f"GDB process {meta.gdb_pid} no longer exists")
@@ -583,48 +601,11 @@ def disasm(session: str, start: Optional[str], count: int, thread_id: Optional[i
 
 
 @main.command()
-def env_check() -> None:
+@click.option("--gdb-path", default=None, help="Path to GDB executable")
+def env_check(gdb_path) -> None:
     """Environment check: GDB version, ptrace permissions, Python version"""
-    import platform
-    import shutil
-
-    results = {
-        "python_version": platform.python_version(),
-        "platform": platform.system(),
-        "arch": platform.machine(),
-    }
-
-    # 检查 GDB
-    gdb_path = shutil.which("gdb")
-    if gdb_path:
-        results["gdb_path"] = gdb_path
-        # 尝试获取版本
-        import subprocess
-        try:
-            output = subprocess.check_output([gdb_path, "--version"], text=True)
-            # 提取版本号
-            import re
-            match = re.search(r"GNU gdb.*?(\d+\.\d+)", output)
-            if match:
-                results["gdb_version"] = match.group(1)
-        except Exception:
-            results["gdb_version"] = "unknown"
-    else:
-        results["gdb_path"] = None
-        results["gdb_error"] = "gdb not found in PATH"
-
-    # 检查 ptrace 权限 (Linux only)
-    if platform.system() == "Linux":
-        ptrace_scope_path = Path("/proc/sys/kernel/yama/ptrace_scope")
-        if ptrace_scope_path.exists():
-            try:
-                scope = ptrace_scope_path.read_text().strip()
-                results["ptrace_scope"] = int(scope)
-                if int(scope) > 0:
-                    results["ptrace_warning"] = "ptrace is restricted. Run 'echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope' to allow attach."
-            except Exception:
-                results["ptrace_scope"] = "unknown"
-
+    from .env_check import get_env_check_cli_output
+    results = get_env_check_cli_output(gdb_path=gdb_path)
     print_json(results)
 
 
