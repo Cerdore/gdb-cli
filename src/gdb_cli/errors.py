@@ -9,6 +9,8 @@ Error Classification - 错误分类和处理
 from enum import Enum
 from typing import Any, Optional, Tuple
 
+from .i18n import t
+
 
 class ErrorType(Enum):
     """错误类型枚举"""
@@ -109,58 +111,6 @@ class ConnectionError(GDBCLIError):
         )
 
 
-# 错误消息和建议模板
-ERROR_SUGGESTIONS = {
-    # 用户错误
-    "variable_not_found": {
-        "suggestion": "检查变量名是否正确，使用 'info locals' 查看当前作用域的变量",
-    },
-    "syntax_error": {
-        "suggestion": "检查表达式语法，确保 C/C++ 表达式格式正确",
-    },
-    "invalid_thread": {
-        "suggestion": "使用 'threads' 命令查看可用线程列表",
-    },
-    "invalid_frame": {
-        "suggestion": "使用 'bt' 命令查看栈帧列表",
-    },
-
-    # GDB 错误
-    "memory_access_failed": {
-        "suggestion": "目标内存区域不可访问，可能是优化导致变量被优化掉",
-    },
-    "no_debug_info": {
-        "suggestion": "尝试加载 debuginfo: 'dnf debuginfo-install' 或检查 .debug 文件",
-    },
-    "process_not_found": {
-        "suggestion": "检查进程是否存在: 'ps aux | grep <进程名>'",
-    },
-
-    # 权限错误
-    "ptrace_denied": {
-        "suggestion": "运行: 'echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope'",
-    },
-    "command_blocked": {
-        "suggestion": "该命令被安全策略阻止，使用 --allow-write 或 --allow-call 参数",
-    },
-
-    # 超时错误
-    "command_timeout": {
-        "suggestion": "命令执行超时，尝试增加 --timeout 参数或简化操作",
-    },
-    "load_timeout": {
-        "suggestion": "core 文件加载超时，可能文件过大，尝试增加超时时间",
-    },
-
-    # 连接错误
-    "socket_not_found": {
-        "suggestion": "GDB 会话可能已终止，重新运行 'gdb-cli load' 或 'gdb-cli attach' 或 'gdb-cli target'",
-    },
-    "connection_refused": {
-        "suggestion": "GDB RPC Server 未响应，检查 GDB 进程是否正常运行",
-    },
-}
-
 
 def classify_gdb_error(error_message: str) -> Tuple[ErrorType, Optional[str]]:
     """
@@ -176,21 +126,21 @@ def classify_gdb_error(error_message: str) -> Tuple[ErrorType, Optional[str]]:
 
     # 用户错误
     if any(x in error_lower for x in ["no symbol", "not found", "undefined"]):
-        return ErrorType.USER_ERROR, ERROR_SUGGESTIONS["variable_not_found"]["suggestion"]
+        return ErrorType.USER_ERROR, t("errors.variable_not_found.suggestion")
     if "syntax error" in error_lower:
-        return ErrorType.USER_ERROR, ERROR_SUGGESTIONS["syntax_error"]["suggestion"]
+        return ErrorType.USER_ERROR, t("errors.syntax_error.suggestion")
     if "invalid thread" in error_lower:
-        return ErrorType.USER_ERROR, ERROR_SUGGESTIONS["invalid_thread"]["suggestion"]
+        return ErrorType.USER_ERROR, t("errors.invalid_thread.suggestion")
     if "invalid frame" in error_lower:
-        return ErrorType.USER_ERROR, ERROR_SUGGESTIONS["invalid_frame"]["suggestion"]
+        return ErrorType.USER_ERROR, t("errors.invalid_frame.suggestion")
 
     # GDB 错误
     if any(x in error_lower for x in ["cannot access memory", "memory not accessible"]):
-        return ErrorType.GDB_ERROR, ERROR_SUGGESTIONS["memory_access_failed"]["suggestion"]
+        return ErrorType.GDB_ERROR, t("errors.memory_access_failed.suggestion")
     if "no debugging symbols" in error_lower:
-        return ErrorType.GDB_ERROR, ERROR_SUGGESTIONS["no_debug_info"]["suggestion"]
+        return ErrorType.GDB_ERROR, t("errors.no_debug_info.suggestion")
     if "process" in error_lower and ("not found" in error_lower or "does not exist" in error_lower):
-        return ErrorType.GDB_ERROR, ERROR_SUGGESTIONS["process_not_found"]["suggestion"]
+        return ErrorType.GDB_ERROR, t("errors.process_not_found.suggestion")
 
     # 默认内部错误
     return ErrorType.INTERNAL_ERROR, None

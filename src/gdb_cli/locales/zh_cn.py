@@ -170,6 +170,20 @@ ZH_CN_CATALOG = {
     "env_check.debuginfo_install_fedora": "Fedora: dnf install {package}-debuginfo",
     "env_check.debuginfo_separate_file": "或使用独立的 .debug 文件: add-symbol-file /path/to/{package}.debug",
 
+    # === Runtime messages ===
+    "errors.session_no_socket": "会话没有 socket: {session_id}",
+    "cli.load.session_reused_message": "该 core 文件已有会话",
+    "cli.load.failed": "启动 GDB 失败",
+    "cli.attach.session_reused_message": "该 PID 已有会话",
+    "cli.attach.failed": "Attach 进程失败",
+    "cli.target.invalid_format": "无效的远程格式: {remote}",
+    "cli.target.session_reused_message": "该远程目标已有会话",
+    "cli.target.failed": "连接目标失败",
+    "cli.status.gdb_loading_message": "GDB 进程存活，尚未响应",
+    "cli.status.session_dead": "会话已终止",
+    "cli.status.gdb_process_dead": "GDB 进程 {pid} 已不存在",
+    "cli.thread_apply.require_target": "必须指定 --all 或 --threads",
+
     # === JSON output hints ===
     "hints.threads_pagination": "使用 'threads --range START-END' 查看特定线程",
     "hints.bt_pagination": "使用 'bt --range START-END' 查看特定栈帧",

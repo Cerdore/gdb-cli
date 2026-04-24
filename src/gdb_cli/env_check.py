@@ -6,6 +6,9 @@ Environment Check - 环境自检模块
 - GDB 版本
 - debuginfo 状态
 - 符号路径辅助
+
+TODO(i18n): ~15 hardcoded English strings in this module are not yet wired to t().
+Catalog keys (env_check.*) are defined and ready. See issue #1.
 """
 
 

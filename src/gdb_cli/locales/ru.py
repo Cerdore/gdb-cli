@@ -170,6 +170,20 @@ RU_CATALOG = {
     "env_check.debuginfo_install_fedora": "Fedora: dnf install {package}-debuginfo",
     "env_check.debuginfo_separate_file": "Или используйте отдельный .debug файл: add-symbol-file /path/to/{package}.debug",
 
+    # === Runtime messages ===
+    "errors.session_no_socket": "Сессия не имеет сокета: {session_id}",
+    "cli.load.session_reused_message": "Сессия для этого core-файла уже существует",
+    "cli.load.failed": "Не удалось запустить GDB",
+    "cli.attach.session_reused_message": "Сессия для этого PID уже существует",
+    "cli.attach.failed": "Не удалось подключиться к процессу",
+    "cli.target.invalid_format": "Неверный формат удалённого адреса: {remote}",
+    "cli.target.session_reused_message": "Сессия для этой удалённой цели уже существует",
+    "cli.target.failed": "Не удалось подключиться к цели",
+    "cli.status.gdb_loading_message": "Процесс GDB жив, пока не отвечает",
+    "cli.status.session_dead": "Сессия завершена",
+    "cli.status.gdb_process_dead": "Процесс GDB {pid} больше не существует",
+    "cli.thread_apply.require_target": "Необходимо указать --all или --threads",
+
     # === JSON output hints ===
     "hints.threads_pagination": "используйте 'threads --range START-END' для конкретных потоков",
     "hints.bt_pagination": "используйте 'bt --range START-END' для конкретных фреймов",

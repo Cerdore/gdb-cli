@@ -172,6 +172,20 @@ ENGLISH_CATALOG = {
     "env_check.debuginfo_install_fedora": "Fedora: dnf install {package}-debuginfo",
     "env_check.debuginfo_separate_file": "Or use separate .debug file: add-symbol-file /path/to/{package}.debug",
 
+    # === Runtime messages ===
+    "errors.session_no_socket": "Session has no socket: {session_id}",
+    "cli.load.session_reused_message": "Session already exists for this core file",
+    "cli.load.failed": "Failed to start GDB",
+    "cli.attach.session_reused_message": "Session already exists for this PID",
+    "cli.attach.failed": "Failed to attach to process",
+    "cli.target.invalid_format": "Invalid remote format: {remote}",
+    "cli.target.session_reused_message": "Session already exists for this remote",
+    "cli.target.failed": "Failed to connect to target",
+    "cli.status.gdb_loading_message": "GDB process alive, not yet responding",
+    "cli.status.session_dead": "Session dead",
+    "cli.status.gdb_process_dead": "GDB process {pid} no longer exists",
+    "cli.thread_apply.require_target": "Must specify --all or --threads",
+
     # === JSON output hints ===
     "hints.threads_pagination": "use 'threads --range START-END' for specific threads",
     "hints.bt_pagination": "use 'bt --range START-END' for specific frames",

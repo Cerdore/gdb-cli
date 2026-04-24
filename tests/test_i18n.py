@@ -160,3 +160,26 @@ class TestSetLocale:
         assert get_current_locale() == "ru"
         reset_locale()
         # After reset, should re-resolve from environment
+
+
+class TestNewKeys:
+    """Test newly added i18n keys"""
+
+    def test_chinese_bug_regression(self):
+        """cli.py:497 no longer has hardcoded Chinese in English locale"""
+        set_locale("en")
+        msg = t("cli.thread_apply.require_target")
+        assert not any('一' <= c <= '鿿' for c in msg), \
+            f"English locale should not contain Chinese: {msg}"
+        reset_locale()
+
+    def test_connection_error_russian(self):
+        """Russian translation for connection_error"""
+        set_locale("ru")
+        assert "Ошибка" in t("errors.connection_error")
+        reset_locale()
+
+    def test_session_not_found_interpolation(self):
+        """Parameter interpolation for session_not_found"""
+        msg = t("errors.session_not_found", session_id="abc123")
+        assert "abc123" in msg

@@ -35,7 +35,7 @@ from .session import (
 
 
 def print_json(data: dict) -> None:
-    """格式化输出 JSON"""
+    """Format JSON output. "status"/"state" fields are stable machine-readable codes; "message" is human-facing and locale-dependent."""
     click.echo(json.dumps(data, indent=2, ensure_ascii=False))
 
 
@@ -51,10 +51,10 @@ def get_client(session_id: str) -> GDBClient:
     """获取会话的客户端"""
     session = get_session(session_id)
     if session is None:
-        raise click.ClickException(f"Session not found: {session_id}")
+        raise click.ClickException(t("errors.session_not_found", session_id=session_id))
 
     if session.sock_path is None:
-        raise click.ClickException(f"Session has no socket: {session_id}")
+        raise click.ClickException(t("errors.session_no_socket", session_id=session_id))
 
     return GDBClient(str(session.sock_path))
 
@@ -93,7 +93,7 @@ def load(
             "binary": existing.binary,
             "core": existing.core,
             "status": "reused",
-            "message": "Session already exists for this core file"
+            "message": t("cli.load.session_reused_message")
         })
         return
 
@@ -121,7 +121,7 @@ def load(
         })
 
     except GDBLauncherError as e:
-        print_error("Failed to start GDB", str(e))
+        print_error(t("cli.load.failed"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -151,7 +151,7 @@ def attach(
             "mode": existing.mode,
             "pid": existing.pid,
             "status": "reused",
-            "message": "Session already exists for this PID"
+            "message": t("cli.attach.session_reused_message")
         })
         return
 
@@ -180,7 +180,7 @@ def attach(
         })
 
     except GDBLauncherError as e:
-        print_error("Failed to attach to process", str(e))
+        print_error(t("cli.attach.failed"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -205,7 +205,7 @@ def target(
 ) -> None:
     """Connect to remote GDB server"""
     if not re.match(r'^[\w.-]+:\d+$', remote):
-        print_error(f"Invalid remote format: {remote}")
+        print_error(t("cli.target.invalid_format", remote=remote))
         raise click.exceptions.Exit(1)
 
     existing = find_session_by_remote(remote)
@@ -215,7 +215,7 @@ def target(
             "mode": existing.mode,
             "remote": existing.remote,
             "status": "reused",
-            "message": "Session already exists for this remote"
+            "message": t("cli.target.session_reused_message")
         })
         return
 
@@ -245,7 +245,7 @@ def target(
         })
 
     except GDBLauncherError as e:
-        print_error("Failed to connect to target", str(e))
+        print_error(t("cli.target.failed"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -263,7 +263,7 @@ def eval_cmd(session: str, expr: str, max_depth: int, max_elements: int) -> None
     except GDBCommandError as e:
         print_error(str(e), expr)
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -281,7 +281,7 @@ def threads(session: str, range_str: Optional[str], limit: int, filter_state: Op
     except GDBCommandError as e:
         print_error(str(e))
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -305,7 +305,7 @@ def bt(session: str, thread_id: Optional[int], limit: int, full: bool, range_str
     except GDBCommandError as e:
         print_error(str(e))
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -321,7 +321,7 @@ def frame_cmd(session: str, number: int) -> None:
     except GDBCommandError as e:
         print_error(str(e))
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -338,7 +338,7 @@ def locals_cmd(session: str, thread_id: Optional[int], frame: int) -> None:
     except GDBCommandError as e:
         print_error(str(e))
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -355,7 +355,7 @@ def exec_cmd(session: str, command: str, safety_level: str) -> None:
     except GDBCommandError as e:
         print_error(str(e), command)
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -438,7 +438,7 @@ def status(session: str) -> None:
     except GDBClientError as e:
         meta = get_session(session)
         if meta is None:
-            print_error("Session not found", session)
+            print_error(t("errors.session_not_found", session_id=session))
             raise click.exceptions.Exit(1)
 
         if meta.gdb_pid:
@@ -448,16 +448,16 @@ def status(session: str) -> None:
                 result = {
                     "session_id": session,
                     "state": "loading",
-                    "message": "GDB process alive, not yet responding"
+                    "message": t("cli.status.gdb_loading_message")
                 }
                 result["elapsed"] = _format_elapsed(elapsed)
                 print_json(result)
                 return
             except OSError:
-                print_error("Session dead", f"GDB process {meta.gdb_pid} no longer exists")
+                print_error(t("cli.status.session_dead"), t("cli.status.gdb_process_dead", pid=meta.gdb_pid))
                 raise click.exceptions.Exit(1)
 
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -475,7 +475,7 @@ def eval_element_cmd(session: str, expr: str, index: int, max_depth: int) -> Non
     except GDBCommandError as e:
         print_error(str(e), f"{expr}[{index}]")
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -494,14 +494,14 @@ def thread_apply_cmd(session: str, command: str, threads: Optional[str], all_thr
             elif threads:
                 params["thread_ids"] = threads
             else:
-                print_error("必须指定 --all 或 --threads")
+                print_error(t("cli.thread_apply.require_target"))
                 raise click.exceptions.Exit(1)
             result = client.call("thread_apply", **params)
             print_json(result)
     except GDBCommandError as e:
         print_error(str(e), command)
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -521,7 +521,7 @@ def args(session: str, thread_id: Optional[int], frame: int) -> None:
     except GDBCommandError as e:
         print_error(str(e))
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -544,7 +544,7 @@ def registers(session: str, names: Optional[str], thread_id: Optional[int], fram
     except GDBCommandError as e:
         print_error(str(e))
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -562,7 +562,7 @@ def memory(session: str, address: str, size: int, fmt: str) -> None:
     except GDBCommandError as e:
         print_error(str(e), address)
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -578,7 +578,7 @@ def ptype(session: str, expr: str) -> None:
     except GDBCommandError as e:
         print_error(str(e), expr)
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -594,7 +594,7 @@ def thread_switch_cmd(session: str, thread_id: int) -> None:
     except GDBCommandError as e:
         print_error(str(e))
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -610,7 +610,7 @@ def frame_up_cmd(session: str, count: int) -> None:
     except GDBCommandError as e:
         print_error(str(e))
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -626,7 +626,7 @@ def frame_down_cmd(session: str, count: int) -> None:
     except GDBCommandError as e:
         print_error(str(e))
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -641,7 +641,7 @@ def sharedlibs(session: str) -> None:
     except GDBCommandError as e:
         print_error(str(e))
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
@@ -665,12 +665,12 @@ def disasm(session: str, start: Optional[str], count: int, thread_id: Optional[i
     except GDBCommandError as e:
         print_error(str(e))
     except GDBClientError as e:
-        print_error("Connection error", str(e))
+        print_error(t("errors.connection_error"), str(e))
         raise click.exceptions.Exit(1)
 
 
 @main.command()
-@click.option("--gdb-path", default=None, help="Path to GDB executable")
+@click.option("--gdb-path", default=None, help=t("cli.load.gdb_path_help"))
 def env_check(gdb_path) -> None:
     """Environment check: GDB version, ptrace permissions, Python version"""
     from .env_check import get_env_check_cli_output
