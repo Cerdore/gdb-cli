@@ -21,11 +21,19 @@ except ImportError:
 # 动态加载 value_formatter（避免相对导入问题）
 import importlib.util
 
-_server_dir = os.environ.get("GDB_CLI_SERVER_DIR", "/tmp")
+_server_dir = os.environ.get("GDB_CLI_SERVER_DIR", str(Path(__file__).parent))
 _value_formatter_path = Path(_server_dir) / "value_formatter.py"
 _spec = importlib.util.spec_from_file_location("value_formatter", _value_formatter_path)
+if _spec is None or _spec.loader is None:
+    raise ImportError(
+        f"Cannot load value_formatter from {_value_formatter_path}: "
+        "file not found or invalid"
+    )
 _value_formatter = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_value_formatter)
+try:
+    _spec.loader.exec_module(_value_formatter)
+except Exception as e:
+    raise ImportError(f"Failed to exec value_formatter module: {e}")
 
 format_gdb_value = _value_formatter.format_gdb_value
 format_value_for_display = _value_formatter.format_value_for_display
@@ -36,11 +44,17 @@ DEFAULT_MAX_ELEMENTS = _value_formatter.DEFAULT_MAX_ELEMENTS
 _safety_path = Path(_server_dir).parent / "safety.py"
 if _safety_path.exists():
     _safety_spec = importlib.util.spec_from_file_location("safety", _safety_path)
-    _safety = importlib.util.module_from_spec(_safety_spec)
-    _safety_spec.loader.exec_module(_safety)
-    SafetyFilter = _safety.SafetyFilter
-    SafetyLevel = _safety.SafetyLevel
-    SAFETY_AVAILABLE = True
+    if _safety_spec is None or _safety_spec.loader is None:
+        SAFETY_AVAILABLE = False
+    else:
+        _safety = importlib.util.module_from_spec(_safety_spec)
+        try:
+            _safety_spec.loader.exec_module(_safety)
+            SafetyFilter = _safety.SafetyFilter
+            SafetyLevel = _safety.SafetyLevel
+            SAFETY_AVAILABLE = True
+        except Exception:
+            SAFETY_AVAILABLE = False
 else:
     SAFETY_AVAILABLE = False
 
@@ -289,19 +303,22 @@ def handle_backtrace(
         total_count = len(all_frames)
 
         # 解析范围或应用 limit
+        out_of_bounds = False
         if range_str:
             start, end = _parse_range(range_str)
             display_frames = all_frames[start:end]
             truncated = end < total_count
+            out_of_bounds = end > total_count
         else:
+            start = 0
             truncated = total_count > limit
             display_frames = all_frames[:limit]
 
-        # 格式化帧
+        # 格式化帧（O(n) frame number calculation via start index）
         frames_data = []
-        for _i, frame in enumerate(display_frames):
+        for i, frame in enumerate(display_frames):
             frame_info = _format_frame(frame, include_locals=full)
-            frame_info["number"] = all_frames.index(frame)
+            frame_info["number"] = start + i
             frames_data.append(frame_info)
 
         # 恢复原线程和帧
@@ -319,10 +336,18 @@ def handle_backtrace(
             "truncated": truncated
         }
 
+        if out_of_bounds:
+            result["out_of_bounds"] = True
+
         if thread_id is not None:
             result["thread_id"] = thread_id
 
-        if truncated:
+        if out_of_bounds:
+            result["hint"] = (
+                f"requested range exceeds available frames "
+                f"({total_count}), showing all available"
+            )
+        elif truncated:
             result["hint"] = "use 'bt --range START-END' for specific frames"
 
         return result

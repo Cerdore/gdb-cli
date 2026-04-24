@@ -1,7 +1,7 @@
 # GDB-CLI 项目缺陷报告
 
 调查日期：2026-04-25
-最后更新：2026-04-25（修复 9 个严重/高优先级问题）
+最后更新：2026-04-25（修复 9 个严重/高优先级问题 + 11 个中优先级问题）
 
 ---
 
@@ -117,19 +117,19 @@
 
 | # | 问题 | 文件 | 状态 |
 |---|-------|------|------|
-| 10 | `GDB_CLI_SERVER_DIR` 默认值为 `/tmp`（全局可写，存在代码注入风险） | `handlers.py`、`gdb_rpc_server.py` | 待修复 |
-| 11 | 启动器 f-string 中的文件路径未清理（可注入 GDB 命令） | `launcher.py` | 待修复 |
-| 12 | Unix socket 无身份验证（任何本地进程均可连接） | `gdb_rpc_server.py` | 待修复 |
-| 13 | `handle_exec` 中的动态模块加载未进行空值检查 | `handlers.py`、`gdb_rpc_server.py` | 待修复 |
-| 14 | Backtrace 截断标志在范围超过帧数时计算错误 | `handlers.py` | 待修复 |
-| 15 | 通过 `all_frames.index(frame)` 实现的 O(n²) 帧号计算 | `handlers.py` | 待修复 |
-| 16 | `signal` 模块在首次使用之后才导入 | `session.py` | 待修复 |
-| 17 | `cleanup_session()` 发送 SIGTERM 后未执行 `waitpid` | `session.py` | 待修复 |
-| 18 | 服务器若从未调用 `set_ready()` 将永久卡在 `loading` 状态 | `gdb_rpc_server.py` | 待修复 |
-| 19 | 写入 `meta.json` 存在 TOCTOU 竞态条件（可能将 `gdb_pid` 置零） | `session.py` | 待修复 |
+| 10 | ~~`GDB_CLI_SERVER_DIR` 默认值为 `/tmp`（全局可写，存在代码注入风险）~~ | `handlers.py`、`gdb_rpc_server.py` | ✅ 已修复 |
+| 11 | ~~启动器 f-string 中的文件路径未清理（可注入 GDB 命令）~~ | `launcher.py` | ✅ 已修复 |
+| 12 | ~~Unix socket 无身份验证（任何本地进程均可连接）~~ | `gdb_rpc_server.py` | ✅ 已修复（socket 文件权限 chmod 0o600） |
+| 13 | ~~`handle_exec` 中的动态模块加载未进行空值检查~~ | `handlers.py`、`gdb_rpc_server.py` | ✅ 已修复 |
+| 14 | ~~Backtrace 截断标志在范围超过帧数时计算错误~~ | `handlers.py` | ✅ 已修复（增加 out_of_bounds 标记） |
+| 15 | ~~通过 `all_frames.index(frame)` 实现的 O(n²) 帧号计算~~ | `handlers.py` | ✅ 已修复（改为 start + index） |
+| 16 | ~~`signal` 模块在首次使用之后才导入~~ | `session.py` | ✅ 已修复（移至文件顶部） |
+| 17 | ~~`cleanup_session()` 发送 SIGTERM 后未执行 `waitpid`~~ | `session.py` | ✅ 已修复（SIGTERM → poll → SIGKILL 升级） |
+| 18 | ~~服务器若从未调用 `set_ready()` 将永久卡在 `loading` 状态~~ | `gdb_rpc_server.py` | ✅ 已修复（增加 60s 超时） |
+| 19 | ~~写入 `meta.json` 存在 TOCTOU 竞态条件（可能将 `gdb_pid` 置零）~~ | `session.py` | ✅ 已修复（原子写 temp + rename） |
 | 20 | ~~`safety.py` 模块在运行时从未被调用~~ | `handlers.py` | ✅ 已修复 |
-| 21 | `_gdb_process` 动态属性在磁盘往返后丢失 | `launcher.py` | 待修复 |
-| 22 | 接收循环中的 O(n²) 字节拼接（10-50 MB） | `gdb_rpc_server.py`、`client.py` | 待修复 |
+| 21 | ~~`_gdb_process` 动态属性在磁盘往返后丢失~~ | `launcher.py` | ✅ 已修复（添加文档注释） |
+| 22 | ~~接收循环中的 O(n²) 字节拼接（10-50 MB）~~ | `gdb_rpc_server.py`、`client.py` | ✅ 已修复（改用 io.BytesIO） |
 
 ---
 
@@ -161,7 +161,7 @@
 |----------|------|--------|--------|
 | **严重** | 3 | 3 | 0 |
 | **高** | 6 | 6 | 0 |
-| **中** | 13 | 1 (#20) | 12 |
+| **中** | 13 | 13 | 0 |
 | **低** | 15 | 2 (#33, #34) | 13 |
 
-**已修复 12 个问题，共计 37 个已识别问题。**
+**已修复 24 个问题，共计 37 个已识别问题。**

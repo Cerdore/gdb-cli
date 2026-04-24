@@ -40,8 +40,8 @@ class TestLaunchCoreAsyncOrder(unittest.TestCase):
         commands = [args[i + 1] for i, value in enumerate(args[:-1]) if value == "-ex"]
 
         start_index = commands.index(next(cmd for cmd in commands if "start_server(" in cmd))
-        file_index = commands.index("file /tmp/a.out")
-        core_index = commands.index("core-file /tmp/core.1")
+        file_index = commands.index("file '/tmp/a.out'")
+        core_index = commands.index("core-file '/tmp/core.1'")
         ready_index = commands.index("python _gdb_rpc_server.set_ready()")
 
         self.assertLess(start_index, file_index)

@@ -5,6 +5,7 @@ Unix Socket Client - 与 GDB RPC Server 通信
 """
 
 
+import io
 import json
 import socket
 from pathlib import Path
@@ -135,17 +136,19 @@ class GDBClient:
             self._sock.shutdown(socket.SHUT_WR)  # type: ignore
 
             # 接收响应
-            response_data = b""
+            response_buffer = io.BytesIO()
             while True:
                 chunk = self._sock.recv(65536)  # type: ignore
                 if not chunk:
                     break
-                response_data += chunk
-                if len(response_data) > MAX_RESPONSE_SIZE:
+                response_buffer.write(chunk)
+                if response_buffer.tell() > MAX_RESPONSE_SIZE:
                     raise GDBClientError("Response too large")
 
-            if not response_data:
+            if response_buffer.tell() == 0:
                 raise GDBConnectionError("Empty response from server")
+
+            response_data = response_buffer.getvalue()
 
             # 解析响应
             response = json.loads(response_data.decode("utf-8"))

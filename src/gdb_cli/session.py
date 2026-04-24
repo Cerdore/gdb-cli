@@ -9,6 +9,9 @@ Session Management - 会话元数据管理
 
 import json
 import os
+import shutil
+import signal
+import tempfile
 import time
 import uuid
 from dataclasses import asdict, dataclass, field
@@ -99,13 +102,25 @@ def create_session(
 
 
 def _write_meta(session: SessionMeta) -> None:
-    """写入 meta.json"""
+    """写入 meta.json（原子写：先写临时文件再重命名，避免 TOCTOU 竞态。）"""
     session_dir = SESSION_DIR / session.session_id
     session_dir.mkdir(parents=True, exist_ok=True)
 
     meta_path = session_dir / "meta.json"
-    with open(meta_path, "w") as f:
-        json.dump(session.to_dict(), f, indent=2)
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", dir=session_dir, delete=False, suffix=".tmp"
+        ) as f:
+            temp_path = f.name
+            json.dump(session.to_dict(), f, indent=2)
+        Path(temp_path).replace(meta_path)
+    except Exception:
+        # 清理临时文件
+        try:
+            Path(temp_path).unlink(missing_ok=True)
+        except Exception:
+            pass
+        raise
 
 
 def _read_meta(session_id: str) -> Optional[SessionMeta]:
@@ -213,20 +228,29 @@ def cleanup_session(session_id: str) -> bool:
     if meta and meta.gdb_pid:
         try:
             os.kill(meta.gdb_pid, signal.SIGTERM)
+            # 等待进程退出，否则发送 SIGKILL
+            deadline = time.time() + 3.0
+            while time.time() < deadline:
+                try:
+                    os.kill(meta.gdb_pid, 0)
+                    time.sleep(0.1)
+                except OSError:
+                    break  # 进程已退出
+            else:
+                # 超时仍未退出，强制 SIGKILL
+                try:
+                    os.kill(meta.gdb_pid, signal.SIGKILL)
+                except OSError:
+                    pass
         except OSError:
             pass
 
     # 删除目录
-    import shutil
     try:
         shutil.rmtree(session_dir)
         return True
     except Exception:
         return False
-
-
-# 导入 signal (放在末尾避免循环依赖)
-import signal
 
 
 def cleanup_dead_sessions() -> int:
@@ -249,7 +273,6 @@ def cleanup_dead_sessions() -> int:
         meta = _read_meta(session_id)
         if meta is None:
             # 无效的 session 目录，删除
-            import shutil
             try:
                 shutil.rmtree(session_dir)
                 cleaned += 1

@@ -5,6 +5,7 @@ GDB RPC Server - 运行在 GDB Python 解释器内
 使用 gdb.post_event() 确保所有 GDB API 调用在主线程执行。
 """
 
+import io
 import json
 import os
 import queue
@@ -70,6 +71,8 @@ class GDBRPCServer:
         self.heartbeat_timer: Optional[threading.Timer] = None
         self._state = "loading"
         self._loading_start = time.time()
+        self.LOADING_TIMEOUT = 60.0
+        self._loading_timer: Optional[threading.Timer] = None
 
         # 命令处理器注册表
         self._handlers: Dict[str, Callable] = {}
@@ -79,11 +82,19 @@ class GDBRPCServer:
         """注册内置命令处理器"""
         # 动态加载 handlers 模块（避免相对导入问题）
         import importlib.util
-        server_dir = os.environ.get("GDB_CLI_SERVER_DIR", "/tmp")
+        server_dir = os.environ.get("GDB_CLI_SERVER_DIR", str(Path(__file__).parent))
         handlers_path = Path(server_dir) / "handlers.py"
         spec = importlib.util.spec_from_file_location("handlers", handlers_path)
+        if spec is None or spec.loader is None:
+            raise ImportError(
+                f"Cannot load handlers from {handlers_path}: "
+                "file not found or invalid"
+            )
         handlers = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(handlers)
+        try:
+            spec.loader.exec_module(handlers)
+        except Exception as e:
+            raise ImportError(f"Failed to exec handlers module: {e}")
 
         self._handlers = {
             "eval": handlers.handle_eval,
@@ -120,6 +131,9 @@ class GDBRPCServer:
     def set_ready(self) -> None:
         """标记会话已完成初始化，可以处理完整命令集。"""
         self._state = "ready"
+        if self._loading_timer:
+            self._loading_timer.cancel()
+            self._loading_timer = None
 
     def start(self) -> None:
         """启动监听线程，注册心跳定时器"""
@@ -138,6 +152,7 @@ class GDBRPCServer:
             self.sock_path.unlink()
 
         self.server_sock.bind(str(self.sock_path))
+        os.chmod(str(self.sock_path), 0o600)
         self.server_sock.listen(1)
         self.server_sock.settimeout(1.0)  # accept 超时，允许定期检查 running 状态
 
@@ -150,6 +165,13 @@ class GDBRPCServer:
         # 启动心跳定时器
         self._start_heartbeat_timer()
 
+        # 启动加载超时定时器
+        self._loading_timer = threading.Timer(
+            self.LOADING_TIMEOUT, self._loading_timeout
+        )
+        self._loading_timer.daemon = True
+        self._loading_timer.start()
+
         gdb.write(f"[GDBRPCServer] Listening on {self.sock_path}\n")
 
     def stop(self) -> None:
@@ -160,6 +182,11 @@ class GDBRPCServer:
         if self.heartbeat_timer:
             self.heartbeat_timer.cancel()
             self.heartbeat_timer = None
+
+        # 取消加载超时定时器
+        if self._loading_timer:
+            self._loading_timer.cancel()
+            self._loading_timer = None
 
         # 关闭 socket
         if self.server_sock:
@@ -199,18 +226,20 @@ class GDBRPCServer:
             try:
                 # 接收请求
                 conn.settimeout(DEFAULT_SOCKET_TIMEOUT)
-                data = b""
+                data_buffer = io.BytesIO()
                 while True:
                     chunk = conn.recv(65536)
                     if not chunk:
                         break
-                    data += chunk
-                    if len(data) > MAX_REQUEST_SIZE:
+                    data_buffer.write(chunk)
+                    if data_buffer.tell() > MAX_REQUEST_SIZE:
                         raise ValueError("Request too large")
 
-                if not data:
+                if data_buffer.tell() == 0:
                     conn.close()
                     continue
+
+                data = data_buffer.getvalue()
 
                 # 解析 JSON 请求
                 try:
@@ -261,10 +290,16 @@ class GDBRPCServer:
             raise ValueError("Missing 'cmd' in request")
 
         if self._state == "loading":
+            elapsed = time.time() - self._loading_start
+            if elapsed > self.LOADING_TIMEOUT:
+                self._state = "error"
+                raise ValueError(
+                    f"Loading timeout ({elapsed:.0f}s > {self.LOADING_TIMEOUT:.0f}s). "
+                    "Binary/core file may not exist or is corrupted."
+                )
             if cmd == "status":
                 return self._handle_loading_status()
             if cmd not in ("ping", "status"):
-                elapsed = time.time() - self._loading_start
                 raise ValueError(f"Session is loading ({elapsed:.0f}s elapsed)")
 
         handler = self._handlers.get(cmd)
@@ -350,6 +385,15 @@ class GDBRPCServer:
                 os._exit(0)
 
         gdb.post_event(do_cleanup)
+
+    def _loading_timeout(self) -> None:
+        """加载超时处理：将会话标记为 error 状态。"""
+        if self._state == "loading":
+            self._state = "error"
+            gdb.write(
+                f"[GDBRPCServer] Loading timeout "
+                f"({self.LOADING_TIMEOUT:.0f}s), session marked as error\n"
+            )
 
 
 def start_server(sock_path: str, session_meta: dict, heartbeat_timeout: int = 600) -> GDBRPCServer:

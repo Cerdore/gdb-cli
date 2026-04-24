@@ -104,20 +104,20 @@ def launch_core(
 
     # sysroot / solib-prefix
     if sysroot:
-        gdb_commands.append(f"set sysroot {sysroot}")
+        gdb_commands.append(f"set sysroot {_escape_gdb_arg(sysroot)}")
     if solib_prefix:
-        gdb_commands.append(f"set solib-absolute-prefix {solib_prefix}")
+        gdb_commands.append(f"set solib-absolute-prefix {_escape_gdb_arg(solib_prefix)}")
 
     # 源码目录
     if source_dir:
-        gdb_commands.append(f"directory {source_dir}")
+        gdb_commands.append(f"directory {_escape_gdb_arg(source_dir)}")
 
     # 启动 RPC Server
     gdb_commands.extend(_build_server_commands(session))
 
     # 加载 binary 和 core。Server 先启动，这样 load 可以异步返回。
-    gdb_commands.append(f"file {binary}")
-    gdb_commands.append(f"core-file {core}")
+    gdb_commands.append(f"file {_escape_gdb_arg(binary)}")
+    gdb_commands.append(f"core-file {_escape_gdb_arg(core)}")
     gdb_commands.append("python _gdb_rpc_server.set_ready()")
 
     # 构建 GDB 参数
@@ -192,7 +192,7 @@ def launch_attach(
 
     # 加载 binary (可选)
     if binary:
-        gdb_commands.append(f"file {binary}")
+        gdb_commands.append(f"file {_escape_gdb_arg(binary)}")
 
     # Attach
     gdb_commands.append(f"attach {pid}")
@@ -269,10 +269,10 @@ def launch_target(
 
     # 加载 binary (可选)
     if binary:
-        gdb_commands.append(f"file {binary}")
+        gdb_commands.append(f"file {_escape_gdb_arg(binary)}")
 
     # Target
-    gdb_commands.append(f"target extended-remote {remote}")
+    gdb_commands.append(f"target extended-remote {_escape_gdb_arg(remote)}")
 
     # scheduler-locking
     if scheduler_locking:
@@ -315,14 +315,14 @@ def _build_server_commands(session: SessionMeta) -> List[str]:
 
     return [
         # 设置环境变量
-        f"python import os; os.environ['GDB_CLI_SOCK_PATH'] = '{session.sock_path}'",
+        f"python import os; os.environ['GDB_CLI_SOCK_PATH'] = {_escape_gdb_arg(str(session.sock_path))}",
         f"python os.environ['GDB_CLI_SESSION_META'] = \"{meta_escaped}\"",
         f"python os.environ['GDB_CLI_HEARTBEAT'] = '{session.heartbeat_timeout}'",
-        f"python os.environ['GDB_CLI_SERVER_DIR'] = '{GDB_SERVER_SCRIPT.parent}'",
+        f"python os.environ['GDB_CLI_SERVER_DIR'] = {_escape_gdb_arg(str(GDB_SERVER_SCRIPT.parent))}",
         # 加载 Server 脚本 (source 会将定义加载到全局命名空间)
-        f"source {GDB_SERVER_SCRIPT}",
+        f"source {_escape_gdb_arg(str(GDB_SERVER_SCRIPT))}",
         # 启动 Server (直接调用全局命名空间中的 start_server)
-        f"python start_server('{session.sock_path}', {session_meta}, {session.heartbeat_timeout})",
+        f"python start_server({_escape_gdb_arg(str(session.sock_path))}, {session_meta}, {session.heartbeat_timeout})",
     ]
 
 
@@ -333,6 +333,12 @@ def _cleanup_fifo_if_exists(fifo_path):
             fifo_path.unlink()
         except Exception:
             pass
+
+
+def _escape_gdb_arg(arg: str) -> str:
+    """将参数转义为 GDB 安全的单引号字符串"""
+    escaped = arg.replace("\\", "\\\\").replace("'", "\\'")
+    return f"'{escaped}'"
 
 
 def _start_gdb_process(
@@ -374,7 +380,8 @@ def _start_gdb_process(
         from .session import _write_meta
         _write_meta(session)
 
-        # 存储 process 对象供 GDBProcess 使用
+        # _gdb_process 是运行时属性，不持久化到 meta.json。
+        # 从磁盘恢复的 session 不会拥有该属性 —— 可通过 gdb_pid 查询进程状态。
         session._gdb_process = process
 
         # 等待 socket 文件创建
