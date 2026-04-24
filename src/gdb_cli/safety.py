@@ -59,7 +59,7 @@ CALL_COMMANDS: Set[str] = {
 # 始终禁止的命令
 FORBIDDEN_COMMANDS: Set[str] = {
     "quit", "kill", "shell", "python-interactive",
-    "signal", "detach", "attach",
+    "signal", "detach", "attach", "target",
 }
 
 # 命令别名映射

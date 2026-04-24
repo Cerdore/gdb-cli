@@ -154,7 +154,7 @@ ERROR_SUGGESTIONS = {
 
     # 连接错误
     "socket_not_found": {
-        "suggestion": "GDB 会话可能已终止，重新运行 'gdb-cli load' 或 'gdb-cli attach'",
+        "suggestion": "GDB 会话可能已终止，重新运行 'gdb-cli load' 或 'gdb-cli attach' 或 'gdb-cli target'",
     },
     "connection_refused": {
         "suggestion": "GDB RPC Server 未响应，检查 GDB 进程是否正常运行",
