@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![CI](https://github.com/Cerdore/gdb-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/Cerdore/gdb-cli/actions/workflows/ci.yml)
 
-[English](README.md) | [中文](README.zh-CN.md) | [Русский](README.ru.md)
+[English](README.md) | [한국어](README.ko.md) | 中文 | [日本語](README.ja.md) | [Español](README.es.md) | [Tiếng Việt](README.vi.md) | [Português](README.pt.md) | [Русский](README.ru.md) | [Türkçe](README.tr.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Italiano](README.it.md)
 
 一个为 AI Agent（Claude Code 等）设计的 GDB 调试工具。采用"瘦客户端 CLI + GDB 内置 Python RPC Server"架构，通过 Bash 即可完成有状态的 GDB 调试。
 
@@ -19,7 +19,7 @@
 
 ## 环境要求
 
-- **Python**: 3.8+
+- **Python**: 3.6.8+
 - **GDB**: 9.0+，**必须带 Python 支持**
 - **OS**: Linux
 
@@ -376,6 +376,34 @@ ssh user@remote-host "pip install git+https://github.com/Cerdore/gdb-cli.git"
 # 运行调试
 ssh user@remote-host "gdb-cli load --binary ./my_program --core ./core.12345"
 ```
+
+## Claude Code 技能
+
+本项目包含一个用于 Claude Code 的 **gdb-cli 技能**，通过结合源代码分析与运行时状态检查，提供智能调试协助。
+
+### 安装技能
+
+```bash
+bunx skills add https://github.com/Cerdore/gdb-cli --skill=gdb-cli
+```
+
+### 在 Claude Code 中使用
+
+```
+/gdb-cli
+
+# 或描述你的调试需求：
+我有一个 core dump 文件 ./core.1234 和二进制文件 ./myapp，帮我调试它。
+```
+
+### 功能特性
+
+- **源代码关联**：自动读取崩溃点附近的源文件
+- **死锁检测**：识别多线程程序中的循环等待模式
+- **安全警告**：在 attach 到生产环境进程时提醒相关风险
+- **结构化报告**：生成包含根因假设与后续步骤的分析报告
+
+详见 [skills/README.md](skills/README.md)。
 
 ## 许可证
 

@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![CI](https://github.com/Cerdore/gdb-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/Cerdore/gdb-cli/actions/workflows/ci.yml)
 
-[English](README.md) | [中文](README.zh-CN.md) | [Русский](README.ru.md)
+[English](README.md) | [한국어](README.ko.md) | [中文](README.zh-CN.md) | [日本語](README.ja.md) | [Español](README.es.md) | [Tiếng Việt](README.vi.md) | [Português](README.pt.md) | Русский | [Türkçe](README.tr.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Italiano](README.it.md)
 
 Инструмент отладки GDB, разработанный для ИИ-агентов (Claude Code и др.). Использует архитектуру «тонкий клиент CLI + RPC-сервер на Python внутри GDB», обеспечивая отладку GDB с сохранением состояния через Bash.
 
